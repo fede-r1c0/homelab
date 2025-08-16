@@ -1,5 +1,9 @@
 # 🏠 HomeLab - Kubernetes y GitOps para experimentar
 
+[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=flat&logo=kubernetes&logoColor=white)](https://kubernetes.io/)
+[![ArgoCD](https://img.shields.io/badge/ArgoCD-EF7B4D?style=flat&logo=argocd&logoColor=white)](https://argoproj.github.io/argo-cd/)
+
 ## 📋 Descripción
 
 Este repo es mi espacio para probar cosas de Kubernetes, GitOps y herramientas CNCF. La idea es ir armando un laboratorio casero donde pueda experimentar, romper, arreglar y aprender sobre la marcha. No hay un objetivo estricto: simplemente ir sumando buenas prácticas, automatización y observabilidad, y de paso dejar todo documentado para que cualquiera pueda replicarlo o adaptarlo.
@@ -178,13 +182,52 @@ Si te sirve esto o querés mejorarlo:
 
 ## 📜 Licencia
 
-Este proyecto está bajo **Creative Commons BY-NC-SA 4.0**.
+[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
-**✅ Permite:** Uso personal/educativo, modificaciones, contribuciones
-**❌ Prohíbe:** Uso comercial (bootcamps, apps comerciales)
-**📋 Requiere:** Atribución al autor, misma licencia para derivados
+Este proyecto está bajo la licencia **Creative Commons BY-NC-SA 4.0**.
 
-**Resumen rápido:** [LICENSE](LICENSE) | **Detalles:** [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+### 🎯 **¿Qué Significa CC BY-NC-SA 4.0?**
+
+- **BY (Atribución)** - Debes dar crédito al autor original ✅
+- **NC (No Comercial)** - No se permite uso comercial ❌
+- **SA (Compartir Igual)** - Las modificaciones deben usar la misma licencia ✅
+
+### ✅ **¿Qué Puedes Hacer?**
+
+- **Usar y aprender** del proyecto para fines personales/educativos
+- **Modificar y adaptar** el código para tus necesidades
+- **Crear trabajos derivados** basados en este proyecto
+- **Distribuir versiones modificadas** (bajo la misma licencia)
+- **Contribuir mejoras** al proyecto original
+- **Compartir y colaborar** con la comunidad
+
+### ❌ **¿Qué NO Puedes Hacer?**
+
+- **Usar para fines comerciales** (bootcamps de pago, apps comerciales)
+- **Remover la atribución** al autor original
+- **Distribuir bajo términos diferentes** de licencia
+- **Usar en proyectos comerciales** sin permiso
+
+### 📋 **¿Qué DEBES Hacer?**
+
+- **Dar crédito apropiado** al autor original [https://github.com/fede-r1c0](https://github.com/fede-r1c0)
+- **Proporcionar un enlace** a la licencia
+- **Licenciar trabajos derivados** bajo los mismos términos (BY-NC-SA 4.0)
+- **Indicar si hiciste modificaciones**
+
+### 🛡️ **¿Qué Asegura Esta Licencia?**
+
+- **El trabajo permanece accesible** para aprendizaje y uso personal
+- **El autor original recibe reconocimiento** apropiado
+- **Las entidades comerciales no pueden lucrar** con el trabajo
+- **Los trabajos derivados mantienen** el mismo espíritu abierto
+- **Se fomenta la colaboración** y mejora del proyecto
+
+### 🔗 **Enlaces Útiles**
+
+- **Texto completo de la licencia:** [LICENSE](LICENSE)
+- **Detalles oficiales:** [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+- **Explicación en español:** [Creative Commons Argentina](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es)
 
 ## 📚 Recursos
 
