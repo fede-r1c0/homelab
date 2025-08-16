@@ -171,26 +171,11 @@ Una vez que todo esté funcionando:
 - [ ] Implementar backup automático
 - [ ] Probar más proyectos de la CNCF
 
-## 🤝 Contribuir
-
-Si te sirve esto o querés mejorarlo:
-
-1. Fork del repo
-2. Crear branch para tu feature
-3. Commit y push
-4. Abrir Pull Request
-
 ## 📜 Licencia
 
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
 Este proyecto está bajo la licencia **Creative Commons BY-NC-SA 4.0**.
-
-### 🎯 **¿Qué Significa CC BY-NC-SA 4.0?**
-
-- **BY (Atribución)** - Debes dar crédito al autor original ✅
-- **NC (No Comercial)** - No se permite uso comercial ❌
-- **SA (Compartir Igual)** - Las modificaciones deben usar la misma licencia ✅
 
 ### ✅ **¿Qué Puedes Hacer?**
 
@@ -215,19 +200,16 @@ Este proyecto está bajo la licencia **Creative Commons BY-NC-SA 4.0**.
 - **Licenciar trabajos derivados** bajo los mismos términos (BY-NC-SA 4.0)
 - **Indicar si hiciste modificaciones**
 
-### 🛡️ **¿Qué Asegura Esta Licencia?**
 
-- **El trabajo permanece accesible** para aprendizaje y uso personal
-- **El autor original recibe reconocimiento** apropiado
-- **Las entidades comerciales no pueden lucrar** con el trabajo
-- **Los trabajos derivados mantienen** el mismo espíritu abierto
-- **Se fomenta la colaboración** y mejora del proyecto
+## 🤝 Contribuir
 
-### 🔗 **Enlaces Útiles**
+**¡Este proyecto fomenta activamente las contribuciones!** 🚀
 
-- **Texto completo de la licencia:** [LICENSE](LICENSE)
-- **Detalles oficiales:** [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-- **Explicación en español:** [Creative Commons Argentina](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es)
+- **✅ Modificaciones permitidas** - Podés mejorar y adaptar el código
+- **✅ Derivados fomentados** - Creá tu propia versión del proyecto  
+- **✅ Colaboración abierta** - Contribuí mejoras al proyecto original
+
+**Guía completa:** [CONTRIBUTING.md](CONTRIBUTING.md) | **Fork y contribuye:** [GitHub](https://github.com/fede-r1c0/homelab)
 
 ## 📚 Recursos
 
