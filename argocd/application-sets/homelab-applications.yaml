@@ -1,0 +1,48 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: homelab-applications
+  namespace: argocd
+  labels:
+    app: homelab-applications
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/fede-r1c0/homelab
+        targetRevision: HEAD
+        files:
+          - path: argocd/applications/*.yaml
+  template:
+    metadata:
+      name: "{{name}}"
+      namespace: argocd
+      labels:
+        app: "{{name}}"
+        project: "{{project}}"
+        phase: "{{phase}}"
+    spec:
+      project: "{{project}}"
+      source:
+        repoURL: "{{repoURL}}"
+        targetRevision: "{{targetRevision}}"
+        chart: "{{chart}}"
+        path: "{{path}}"
+        helm:
+          valueFiles: "{{valueFiles}}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{namespace}}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - PrunePropagationPolicy=foreground
+        retry:
+          limit: 2
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m
+      revisionHistoryLimit: 10

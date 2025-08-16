@@ -1,0 +1,62 @@
+---
+# 🚀 Manifesto de Bootstrap Directo para ArgoCD
+# Este archivo permite configurar ArgoCD directamente sin usar la UI
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: homelab-repo-credentials
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: argocd
+type: Opaque
+stringData:
+  url: https://github.com/fede-r1c0/homelab
+  type: git
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Repository
+metadata:
+  name: homelab-repository
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: argocd
+spec:
+  url: https://github.com/fede-r1c0/homelab
+  type: git
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: homelab-bootstrap
+  namespace: argocd
+  labels:
+    project: bootstrap
+    app: homelab-bootstrap
+    phase: bootstrap
+    automated: "true"
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/fede-r1c0/homelab
+    targetRevision: HEAD
+    path: argocd
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+    retry:
+      limit: 3
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 5m
+  revisionHistoryLimit: 20

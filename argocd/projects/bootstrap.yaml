@@ -1,0 +1,83 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: bootstrap
+  namespace: argocd
+  labels:
+    project: bootstrap
+spec:
+  description: Bootstrap applications required for cluster operation
+
+  # Source repositories
+  sourceRepos:
+    - "https://github.com/fede-r1c0/homelab"
+
+  # Destination clusters and namespaces
+  destinations:
+    - namespace: "*"
+      server: https://kubernetes.default.svc
+
+  # Cluster resource allow list
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+    - group: "rbac.authorization.k8s.io"
+      kind: ClusterRole
+    - group: "rbac.authorization.k8s.io"
+      kind: ClusterRoleBinding
+    - group: "apiextensions.k8s.io"
+      kind: CustomResourceDefinition
+    - group: "admissionregistration.k8s.io"
+      kind: ValidatingWebhookConfiguration
+    - group: "admissionregistration.k8s.io"
+      kind: MutatingWebhookConfiguration
+
+  # Namespace resource allow list
+  namespaceResourceWhitelist:
+    - group: ""
+      kind: ConfigMap
+    - group: ""
+      kind: Secret
+    - group: ""
+      kind: Service
+    - group: ""
+      kind: ServiceAccount
+    - group: ""
+      kind: PersistentVolumeClaim
+    - group: ""
+      kind: PersistentVolume
+    - group: "apps"
+      kind: Deployment
+    - group: "apps"
+      kind: StatefulSet
+    - group: "apps"
+      kind: DaemonSet
+    - group: "batch"
+      kind: CronJob
+    - group: "batch"
+      kind: Job
+    - group: "networking.k8s.io"
+      kind: NetworkPolicy
+    - group: "networking.k8s.io"
+      kind: Ingress
+    - group: "rbac.authorization.k8s.io"
+      kind: Role
+    - group: "rbac.authorization.k8s.io"
+      kind: RoleBinding
+    - group: "cert-manager.io"
+      kind: "*"
+    - group: "metallb.io"
+      kind: "*"
+    - group: "bitnami.com"
+      kind: "*"
+
+  # Sync policy
+  syncWindows:
+    - name: allow-sync
+      schedule: "0 0 * * *"
+      duration: 24h
+      kind: allow
+      applications:
+        - "sealed-secrets"
+        - "metallb"
+        - "cert-manager"
