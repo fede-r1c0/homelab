@@ -1,0 +1,90 @@
+# Backstage Configuration for Raspberry Pi Single-Node Cluster
+# Optimized for home lab environment
+
+# Application configuration
+app:
+  name: backstage
+  version: "1.0.0"
+
+# Container configuration
+container:
+  image: backstage/backstage:latest
+  imagePullPolicy: IfNotPresent
+
+  # Resource limits optimized for Raspberry Pi
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 200m
+    limits:
+      memory: 512Mi
+      cpu: 400m
+
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    runAsGroup: 1001
+    fsGroup: 1001
+
+  # Environment variables
+  env:
+    - name: POSTGRES_HOST
+      value: "postgres"
+    - name: POSTGRES_PORT
+      value: "5432"
+    - name: POSTGRES_USER
+      value: "backstage"
+    - name: POSTGRES_PASSWORD
+      value: "backstage"
+    - name: POSTGRES_DB
+      value: "backstage"
+
+# Service configuration
+service:
+  type: LoadBalancer
+  port: 7007
+  targetPort: 7007
+
+# Ingress configuration (disabled for single node)
+ingress:
+  enabled: false
+
+# Persistence configuration
+persistence:
+  enabled: true
+  size: 5Gi
+  storageClass: "local-path"
+  accessMode: ReadWriteOnce
+
+# RBAC configuration
+rbac:
+  create: true
+  rules:
+    - apiGroups: [""]
+      resources: ["secrets", "configmaps", "services", "pods"]
+      verbs: ["get", "list", "watch"]
+    - apiGroups: ["apps"]
+      resources: ["deployments", "statefulsets"]
+      verbs: ["get", "list", "watch"]
+
+# Service account configuration
+serviceAccount:
+  create: true
+  name: "backstage"
+  annotations: {}
+
+# Pod annotations
+podAnnotations: {}
+
+# Pod labels
+podLabels: {}
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}

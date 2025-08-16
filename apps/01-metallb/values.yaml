@@ -1,0 +1,122 @@
+# MetalLB Configuration for Raspberry Pi Single-Node Cluster
+# Optimized for home lab environment
+
+# Controller configuration
+controller:
+  # Resource limits optimized for Raspberry Pi
+  resources:
+    requests:
+      memory: 64Mi
+      cpu: 100m
+    limits:
+      memory: 128Mi
+      cpu: 200m
+
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    runAsGroup: 1001
+    fsGroup: 1001
+
+  # Service configuration
+  service:
+    type: ClusterIP
+
+  # High availability (disabled for single node)
+  replicaCount: 1
+
+  # Pod disruption budget
+  podDisruptionBudget:
+    enabled: false
+
+  # Pod security policy
+  podSecurityPolicy:
+    enabled: false
+
+  # Network policy
+  networkPolicy:
+    enabled: false
+
+# Speaker configuration
+speaker:
+  # Resource limits optimized for Raspberry Pi
+  resources:
+    requests:
+      memory: 64Mi
+      cpu: 100m
+    limits:
+      memory: 128Mi
+      cpu: 200m
+
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    runAsGroup: 1001
+    fsGroup: 1001
+
+  # DaemonSet configuration
+  daemonSet:
+    enabled: true
+
+  # Pod disruption budget
+  podDisruptionBudget:
+    enabled: false
+
+  # Pod security policy
+  podSecurityPolicy:
+    enabled: false
+
+  # Network policy
+  networkPolicy:
+    enabled: false
+
+# RBAC configuration
+rbac:
+  create: true
+  rules:
+    - apiGroups: [""]
+      resources: ["services", "endpoints", "nodes"]
+      verbs: ["get", "list", "watch"]
+    - apiGroups: ["metallb.io"]
+      resources:
+        ["ipaddresspools", "l2advertisements", "bgppeers", "bfdprofiles"]
+      verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+# Service account configuration
+serviceAccount:
+  create: true
+  name: "metallb-controller"
+  annotations: {}
+
+# Pod annotations
+podAnnotations: {}
+
+# Pod labels
+podLabels: {}
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}
+
+# Ingress configuration (disabled for single node)
+ingress:
+  enabled: false
+
+# TLS configuration
+tls:
+  enabled: false
+
+# IP Address Pool configuration
+# This will be configured via a separate ConfigMap
+ipAddressPools: []
+
+# L2 Advertisement configuration
+# This will be configured via a separate ConfigMap
+l2Advertisements: []

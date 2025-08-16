@@ -1,0 +1,66 @@
+# Tempo Configuration for Raspberry Pi Single-Node Cluster
+# Optimized for home lab environment
+
+# Tempo configuration
+tempo:
+  # Resource limits optimized for Raspberry Pi
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 200m
+
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    runAsGroup: 1001
+    fsGroup: 1001
+
+  # Service configuration
+  service:
+    type: LoadBalancer
+
+  # High availability (disabled for single node)
+  replicaCount: 1
+
+  # Storage configuration
+  storage:
+    trace:
+      backend: local
+      local:
+        path: /var/tempo/traces
+
+  # Persistence
+  persistence:
+    enabled: true
+    size: 5Gi
+    storageClass: "local-path"
+    accessMode: ReadWriteOnce
+
+# RBAC configuration
+rbac:
+  create: true
+
+# Service account configuration
+serviceAccount:
+  create: true
+  name: "tempo"
+  annotations: {}
+
+# Pod annotations
+podAnnotations: {}
+
+# Pod labels
+podLabels: {}
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}

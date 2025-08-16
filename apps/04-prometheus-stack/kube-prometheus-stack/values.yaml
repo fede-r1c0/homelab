@@ -1,0 +1,268 @@
+# kube-prometheus-stack Configuration for Raspberry Pi Single-Node Cluster
+# Optimized for home lab environment
+
+# Global configuration
+global:
+  # Disable high availability for single node
+  highAvailability:
+    enabled: false
+
+  # Resource limits optimization
+  resourcePolicy:
+    enabled: true
+
+# Grafana configuration
+grafana:
+  # Resource limits optimized for Raspberry Pi
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 200m
+
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    runAsGroup: 1001
+    fsGroup: 1001
+
+  # Service configuration
+  service:
+    type: LoadBalancer
+
+  # High availability (disabled for single node)
+  replicaCount: 1
+
+  # Pod disruption budget
+  podDisruptionBudget:
+    enabled: false
+
+  # Pod security policy
+  podSecurityPolicy:
+    enabled: false
+
+  # Network policy
+  networkPolicy:
+    enabled: false
+
+  # Ingress configuration (disabled for single node)
+  ingress:
+    enabled: false
+
+  # TLS configuration
+  tls:
+    enabled: false
+
+  # Default admin credentials
+  adminPassword: "admin"
+
+  # Dashboard configuration
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: "default"
+          orgId: 1
+          folder: ""
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/default
+
+  # Default dashboards
+  dashboards:
+    default:
+      kubernetes-cluster:
+        gnetId: 315
+        revision: 3
+        datasource: Prometheus
+      kubernetes-pods:
+        gnetId: 6417
+        revision: 1
+        datasource: Prometheus
+      kubernetes-nodes:
+        gnetId: 6418
+        revision: 1
+        datasource: Prometheus
+
+# Prometheus configuration
+prometheus:
+  # Resource limits optimized for Raspberry Pi
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 200m
+    limits:
+      memory: 512Mi
+      cpu: 400m
+
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    runAsGroup: 1001
+    fsGroup: 1001
+
+  # Service configuration
+  service:
+    type: LoadBalancer
+
+  # High availability (disabled for single node)
+  replicaCount: 1
+
+  # Pod disruption budget
+  podDisruptionBudget:
+    enabled: false
+
+  # Pod security policy
+  podSecurityPolicy:
+    enabled: false
+
+  # Network policy
+  networkPolicy:
+    enabled: false
+
+  # Storage configuration
+  storageSpec:
+    volumeClaimTemplate:
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi
+        storageClassName: "local-path"
+
+  # Retention configuration
+  retention: 7d
+
+  # Scrape configuration
+  prometheusSpec:
+    retention: 7d
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi
+          storageClassName: "local-path"
+
+# AlertManager configuration
+alertmanager:
+  # Resource limits optimized for Raspberry Pi
+  resources:
+    requests:
+      memory: 64Mi
+      cpu: 50m
+    limits:
+      memory: 128Mi
+      cpu: 100m
+
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    runAsGroup: 1001
+    fsGroup: 1001
+
+  # Service configuration
+  service:
+    type: ClusterIP
+
+  # High availability (disabled for single node)
+  replicaCount: 1
+
+  # Pod disruption budget
+  podDisruptionBudget:
+    enabled: false
+
+  # Pod security policy
+  podSecurityPolicy:
+    enabled: false
+
+  # Network policy
+  networkPolicy:
+    enabled: false
+
+  # Storage configuration
+  storageSpec:
+    volumeClaimTemplate:
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi
+        storageClassName: "local-path"
+
+# Node Exporter configuration
+nodeExporter:
+  # Resource limits optimized for Raspberry Pi
+  resources:
+    requests:
+      memory: 32Mi
+      cpu: 25m
+    limits:
+      memory: 64Mi
+      cpu: 50m
+
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    runAsGroup: 1001
+    fsGroup: 1001
+
+# Kube State Metrics configuration
+kubeStateMetrics:
+  # Resource limits optimized for Raspberry Pi
+  resources:
+    requests:
+      memory: 32Mi
+      cpu: 25m
+    limits:
+      memory: 64Mi
+      cpu: 50m
+
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    runAsGroup: 1001
+    fsGroup: 1001
+
+# RBAC configuration
+rbac:
+  create: true
+  rules:
+    - apiGroups: [""]
+      resources:
+        ["secrets", "events", "configmaps", "services", "pods", "nodes"]
+      verbs: ["get", "list", "watch"]
+    - apiGroups: ["monitoring.coreos.com"]
+      resources: ["*"]
+      verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+# Service account configuration
+serviceAccount:
+  create: true
+  name: "prometheus-operator"
+  annotations: {}
+
+# Pod annotations
+podAnnotations: {}
+
+# Pod labels
+podLabels: {}
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}
