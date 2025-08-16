@@ -1,332 +1,187 @@
-# HomeLab - Kubernetes en Raspberry Pi 5
+# 🏠 HomeLab - Kubernetes y GitOps para aprender y experimentar
 
 ## 📋 Descripción
 
-Laboratorio local de Kubernetes hosteado en Raspberry Pi 5 para experimentación y desarrollo. Este proyecto implementa un stack completo de herramientas de observabilidad, seguridad y GitOps utilizando K3S como distribución de Kubernetes.
+Este repo es mi espacio para probar cosas de Kubernetes, GitOps y herramientas CNCF. La idea es ir armando un laboratorio casero donde pueda experimentar, romper, arreglar y aprender sobre la marcha. No hay un objetivo estricto: simplemente ir sumando buenas prácticas, automatización y observabilidad, y de paso dejar todo documentado para que cualquiera pueda replicarlo o adaptarlo.
+
+Funciona sobre una Raspberry Pi 5, pero en realidad podés usar cualquier equipo con Linux (o WSL en Windows, o macOS) que cumpla con los requisitos mínimos de hardware. El objetivo es que sea fácil de reproducir y modificar.
+
+## 🎯 Objetivos
+
+- Aprender sobre Kubernetes, GitOps y proyectos de la CNCF
+- Probar arquitecturas y herramientas reales en un entorno controlado
+- Experimentar con observabilidad, seguridad y automatización
+- Documentar el proceso para que sirva de referencia a otros
 
 ## 🏗️ Arquitectura
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Raspberry Pi 5                       │
-│  ┌─────────────────────────────────────────────────────┐ │
-│  │               Ubuntu Server 25.04                   │ │
-│  │  ┌─────────────────────────────────────────────────┐ │ │
-│  │  │                   K3S                           │ │ │
-│  │  │  ┌─────────────┐  ┌─────────────┐  ┌──────────┐ │ │ │
-│  │  │  │ Observabilidad│  │  Seguridad  │  │ GitOps   │ │ │ │
-│  │  │  │  - Prometheus │  │ - OPA GK    │  │ - ArgoCD │ │ │ │
-│  │  │  │  - Grafana    │  │ - Falco     │  │          │ │ │ │
-│  │  │  │  - Loki       │  │             │  │          │ │ │ │
-│  │  │  │  - Tempo      │  │             │  │          │ │ │ │
-│  │  │  │  - OpenTel    │  │             │  │          │ │ │ │
-│  │  │  └─────────────┘  └─────────────┘  └──────────┘ │ │ │
-│  │  └─────────────────────────────────────────────────┘ │ │
-│  └─────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────┘
-```
+### App of Apps con ArgoCD
 
-## 🚀 Stack de Tecnologías
+- `homelab-bootstrap`: la app principal que orquesta todo
+- Apps individuales: cada herramienta tiene su propia config
+- Proyectos separados para organizar y aplicar RBAC
+- ArgoCD detecta y gestiona todo desde el repo
 
-### Core Infrastructure
-- **OS**: Ubuntu Server 25.04
-- **Kubernetes**: K3S (ligero y optimizado para ARM64)
-- **CNI**: Cilium (networking avanzado y eBPF)
+### Stack de Tecnologías
+
+- **OS**: Ubuntu Server (ARM64) o cualquier Linux
+- **Kubernetes**: K3S (liviano, ideal para ARM o equipos chicos)
+- **CNI**: Cilium
 - **Load Balancer**: MetalLB
-- **Certificate Management**: cert-manager
-
-### Observabilidad y Monitoreo
-- **Métricas**: Prometheus
-- **Visualización**: Grafana
-- **Logs**: Loki
-- **Tracing**: Tempo
-- **Instrumentación**: OpenTelemetry
-
-### DevOps y Seguridad
+- **Certificados**: cert-manager
+- **Observabilidad**: Prometheus, Grafana, Loki, Tempo, Hubble
 - **GitOps**: ArgoCD
-- **Developer Portal**: Backstage
-- **Policy Engine**: OPA Gatekeeper
-- **Runtime Security**: Falco
+- **Seguridad**: OPA Gatekeeper, Cilium Network Policies, Sealed Secrets
+- **Internal Developer Portal**: Backstage
 
-## 📦 Prerrequisitos
-
-- Raspberry Pi 5 (4GB+ RAM recomendado)
-- MicroSD Card (32GB+ clase 10)
-- Conexión a Internet estable
-- PC con SSH client
-- Repositorio GitHub con manifiestos y configuraciones Helm
-
-## 🛠️ Instalación
-
-### 1. Preparación del Sistema Base
+## 📁 Estructura del Repo
 
 ```bash
-# Flash Ubuntu Server 25.04 en la microSD
-# Configuración inicial tras el primer boot
-sudo apt update && sudo apt upgrade -y
-
-# Instalación de paquetes esenciales
-sudo apt install -y curl wget git vim htop tree jq unzip
-```
-
-### 2. Configuración SSH
-
-```bash
-# Generar clave SSH para GitHub
-ssh-keygen -t ed25519 -C "your-email@example.com"
-
-# Configurar SSH server
-sudo systemctl enable ssh
-sudo systemctl start ssh
-
-# Agregar clave pública a GitHub
-cat ~/.ssh/id_ed25519.pub
-```
-
-### 3. Configuración del Entorno de Desarrollo
-
-```bash
-# Clonar dotfiles
-git clone git@github.com:username/dotfiles.git ~/dotfiles
-
-# Instalar GNU Stow
-sudo apt install -y stow
-
-# Aplicar configuraciones
-cd ~/dotfiles
-stow .
-```
-
-### 4. Instalación de K3S
-
-```bash
-# Instalar K3S sin Traefik (usaremos Cilium)
-curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--flannel-backend=none --disable-network-policy --disable=traefik" sh -
-
-# Configurar kubeconfig
-mkdir -p ~/.kube
-sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
-sudo chown $USER:$USER ~/.kube/config
-```
-
-### 5. Instalación de Cilium CNI
-
-```bash
-# Instalar Cilium CLI
-CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/master/stable.txt)
-curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-arm64.tar.gz
-sudo tar xzvfC cilium-linux-arm64.tar.gz /usr/local/bin
-
-# Instalar Cilium en el cluster
-cilium install
-cilium status --wait
-```
-
-### 6. Instalación de ArgoCD (Bootstrap GitOps)
-
-```bash
-# Crear namespace y aplicar manifiestos
-kubectl create namespace argocd
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-
-# Exponer ArgoCD UI
-kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
-
-# Obtener contraseña inicial de ArgoCD
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
-```
-
-### 7. Configuración GitOps - App of Apps Pattern
-
-```bash
-# Configurar repositorio principal en ArgoCD
-kubectl apply -f - <<EOF
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-	name: homelab-apps
-	namespace: argocd
-spec:
-	project: default
-	source:
-		repoURL: https://github.com/username/homelab
-		targetRevision: HEAD
-		path: apps
-	destination:
-		server: https://kubernetes.default.svc
-		namespace: argocd
-	syncPolicy:
-		automated:
-			prune: true
-			selfHeal: true
-EOF
-```
-
-## 🗂️ Estructura del Repositorio GitOps
-
-```
 homelab/
-├── apps/
-│   ├── metallb/
-│   │   ├── application.yaml
-│   │   └── values.yaml
-│   ├── cert-manager/
-│   │   ├── application.yaml
-│   │   └── values.yaml
-│   ├── monitoring/
-│   │   ├── prometheus/
-│   │   │   ├── application.yaml
-│   │   │   └── values.yaml
-│   │   ├── grafana/
-│   │   │   ├── application.yaml
-│   │   │   └── values.yaml
-│   │   ├── loki/
-│   │   │   ├── application.yaml
-│   │   │   └── values.yaml
-│   │   └── tempo/
-│   │       ├── application.yaml
-│   │       └── values.yaml
-│   ├── security/
-│   │   ├── gatekeeper/
-│   │   │   ├── application.yaml
-│   │   │   └── values.yaml
-│   │   └── falco/
-│   │       ├── application.yaml
-│   │       └── values.yaml
-│   └── backstage/
-│       ├── application.yaml
-│       └── values.yaml
-└── README.md
+├── .github/workflows/           # Validación automática de manifiestos
+├── argocd/                      # Configuración de ArgoCD
+│   ├── projects/                # Definición de proyectos con RBAC
+│   ├── applications/            # Aplicaciones individuales (App of Apps)
+│   └── application-sets/        # ApplicationSets para gestión masiva
+├── apps/                        # Configuraciones de aplicaciones (values.yaml)
+├── scripts/                     # Scripts de automatización
+├── docs/                        # Documentación técnica
+├── policies/                    # Políticas OPA para validación
+└── README.md                    # Este archivo
 ```
 
-## 📋 Despliegue de Aplicaciones via GitOps
+### Apps Incluidas
 
-### MetalLB
-```yaml
-# apps/metallb/application.yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-	name: metallb
-	namespace: argocd
-spec:
-	project: default
-	source:
-		repoURL: https://metallb.github.io/metallb
-		chart: metallb
-		targetRevision: 0.13.12
-		helm:
-			valueFiles:
-			- values.yaml
-	destination:
-		server: https://kubernetes.default.svc
-		namespace: metallb-system
-	syncPolicy:
-		automated:
-			prune: true
-			selfHeal: true
-		syncOptions:
-		- CreateNamespace=true
-```
+- **00-sealed-secrets**: Gestión segura de secretos
+- **01-metallb**: Load balancer para servicios
+- **02-cert-manager**: Certificados TLS automáticos
+- **03-opa-gatekeeper**: Políticas de seguridad
+- **04-prometheus-stack**: Observabilidad completa
+- **05-backstage**: Developer Portal
 
-### Stack de Observabilidad
-Las herramientas de monitoreo se despliegan utilizando ArgoCD con charts oficiales de Helm:
+> **Nota**: Las apps se instalan en este orden para respetar dependencias:
 
-- **Prometheus**: `prometheus-community/kube-prometheus-stack`
-- **Grafana**: Incluido en kube-prometheus-stack
-- **Loki**: `grafana/loki-stack`
-- **Tempo**: `grafana/tempo`
+## 🚀 Implementación
 
-Cada aplicación utiliza su respectivo `values.yaml` personalizado para configurar:
-- Recursos optimizados para Raspberry Pi
-- Configuración de LoadBalancer services
-- Dashboards predeterminados
-- Alerting rules
+### Setup Inicial
 
-### Herramientas de Seguridad
-- **OPA Gatekeeper**: Utilizando manifiestos oficiales con políticas personalizadas
-- **Falco**: Chart oficial `falcosecurity/falco` con configuración ARM64
-
-## 🔍 Verificación de la Instalación
+**Opción 1: Script Automático (Recomendado)**
 
 ```bash
-# Verificar estado del cluster
-kubectl get nodes
-kubectl get pods --all-namespaces
+# Hacer ejecutable y ejecutar
+chmod +x scripts/bootstrap-argocd.sh
+./scripts/bootstrap-argocd.sh
+```
 
-# Verificar ArgoCD Applications
+**Opción 2: Manual via UI de ArgoCD**
+
+1. Agregar repo `https://github.com/fede-r1c0/homelab` en ArgoCD
+2. Crear app `homelab-bootstrap` apuntando a `argocd/`
+3. ArgoCD auto-descubre y gestiona todo lo demás
+
+### Cómo Funciona
+
+- **ArgoCD lee** tu repo automáticamente
+- **Crea proyectos** con RBAC granular
+- **Despliega apps** en el orden correcto (dependencias)
+- **Sincroniza** cambios automáticamente
+- **Auto-healing** si algo se rompe
+- **GitOps** completo: todo se gestiona desde el repo
+
+### Comandos Útiles
+
+**Verificar estado rápidamente:**
+```bash
+./scripts/quick-check.sh
+```
+
+**Comandos básicos:**
+```bash
+# Ver apps de ArgoCD
 kubectl get applications -n argocd
 
-# Estado de sincronización GitOps
-argocd app list
-argocd app sync homelab-apps
+# Ver pods
+kubectl get pods -n argocd
 
-# Verificar servicios expuestos
-kubectl get svc --all-namespaces | grep LoadBalancer
-
-# Estado de Cilium
-cilium status
+# Logs de ArgoCD
+kubectl logs -n argocd -l app.kubernetes.io/name=argocd-server
 ```
 
-## 📊 Acceso a Servicios
+## 📚 Documentación Detallada
 
-| Servicio | Puerto | URL | Credenciales |
-|----------|--------|-----|--------------|
-| ArgoCD | 80 | http://cluster-ip | admin/[kubectl get secret] |
-| Grafana | 80 | http://cluster-ip | admin/prom-operator |
-| Prometheus | 9090 | http://cluster-ip:9090 | - |
-| Backstage | 7007 | http://cluster-ip:7007 | - |
+Ya que este README es solo una vista general, la documentación completa está en el directorio `docs/`:
 
-## 🔧 Troubleshooting
+- **[Raspberry Pi Setup](docs/RASPBERRYPI_SETUP.md)** - Configurar tu Pi u otro Linux con arm64
+- **[k3s Setup](docs/K3S_CILIUM_SETUP.md)** - Instalar el cluster Kubernetes
+- **[Cilium Setup](docs/K3S_CILIUM_SETUP.md)** - Instalar el cluster Kubernetes
+- **[ArgoCD Setup](docs/ARGOCD_SETUP.md)** - Configurar GitOps y el patrón App of Apps
 
-### Problemas Comunes
+## 🔧 Personalización
 
-1. **ArgoCD Applications en OutOfSync**: Verificar conectividad con repositorio GitHub
-2. **Pods en estado Pending**: Revisar recursos y taints del nodo
-3. **Servicios LoadBalancer en Pending**: Verificar configuración de MetalLB
-4. **GitOps sync failures**: Revisar logs de ArgoCD y validar manifiestos
+### Agregar Nuevas Apps
+1. Crear directorio en `apps/` con tu `values.yaml`
+2. Crear app en `argocd/applications/`
+3. Commit y push → ArgoCD la detecta automáticamente
 
-### Comandos de Diagnóstico
+### Modificar Configuración
+- **Apps**: Edita `values.yaml` en `apps/`
+- **ArgoCD**: Modifica archivos en `argocd/`
+- **Scripts**: Personaliza `scripts/config.env`
 
+## 🚨 Troubleshooting Rápido
+
+**App en OutOfSync:**
 ```bash
-# Estado de ArgoCD
-kubectl logs -n argocd -l app.kubernetes.io/name=argocd-application-controller
-argocd app get homelab-apps
-
-# Estado general del cluster
-kubectl cluster-info
-kubectl get events --sort-by=.metadata.creationTimestamp
-
-# Recursos del sistema
-free -h
-df -h
-systemctl status k3s
+kubectl get applications -n argocd
+kubectl logs -n argocd -l app.kubernetes.io/name=argocd-server
 ```
 
-## 🔄 Flujo de Trabajo GitOps
+**Pods no arrancan:**
+```bash
+kubectl describe pod <nombre-del-pod> -n <namespace>
+kubectl get events --sort-by=.metadata.creationTimestamp
+```
 
-1. **Modificar configuraciones**: Editar `values.yaml` en el repositorio
-2. **Commit y Push**: Subir cambios a GitHub
-3. **Auto-sync**: ArgoCD detecta cambios y sincroniza automáticamente
-4. **Verificación**: Revisar estado de aplicaciones en ArgoCD UI
+**ArgoCD no responde:**
+```bash
+kubectl get pods -n argocd
+kubectl logs -n argocd -l app.kubernetes.io/name=argocd-server -f
+```
 
-## 📝 Próximos Pasos
+## 🌐 Acceso a Servicios
+
+Una vez que todo esté funcionando:
+
+| Servicio | URL | Credenciales |
+|----------|-----|--------------|
+| ArgoCD | http://cluster-ip | admin / [ver secret] |
+| Grafana | http://cluster-ip | admin / prom-operator |
+| Prometheus | http://cluster-ip:9090 | - |
+| Backstage | http://cluster-ip:7007 | - |
+
+## 🎯 Próximos Pasos
 
 - [ ] Configurar Backstage como Developer Portal
-- [ ] Implementar políticas de seguridad con OPA Gatekeeper
+- [ ] Agregar políticas de OPA Gatekeeper
 - [ ] Configurar alertas en Prometheus
-- [ ] Integrar OpenTelemetry para tracing distribuido
-- [ ] Automatizar backups de configuraciones
-- [ ] Implementar RBAC y service accounts específicos
+- [ ] Implementar backup automático
+- [ ] Probar más proyectos de la CNCF
 
-## 🤝 Contribución
+## 🤝 Contribuir
 
-Las contribuciones son bienvenidas. Por favor, crear un issue antes de enviar pull requests.
+Si te sirve esto o querés mejorarlo:
+1. Fork del repo
+2. Crear branch para tu feature
+3. Commit y push
+4. Abrir Pull Request
 
-## 📄 Licencia
+## 📚 Recursos
 
-Este proyecto está bajo la licencia MIT. Ver `LICENSE` para más detalles.
+- [ArgoCD Docs](https://argo-cd.readthedocs.io/)
+- [k3s Docs](https://docs.k3s.io/)
+- [Cilium Docs](https://docs.cilium.io/)
+- [OPA Gatekeeper](https://open-policy-agent.github.io/gatekeeper/)
 
 ---
 
-**Nota**: Este homelab está diseñado para propósitos de aprendizaje y experimentación. No se recomienda para entornos de producción sin las debidas consideraciones de seguridad y alta disponibilidad.
+**¡Listo! Ahora tenés un homelab Kubernetes completo y automatizado.** 🚀
