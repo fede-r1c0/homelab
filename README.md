@@ -1,4 +1,4 @@
-# 🏠 HomeLab - Kubernetes y GitOps para aprender y experimentar
+# 🏠 HomeLab - Kubernetes y GitOps para experimentar
 
 ## 📋 Descripción
 
@@ -170,10 +170,21 @@ Una vez que todo esté funcionando:
 ## 🤝 Contribuir
 
 Si te sirve esto o querés mejorarlo:
+
 1. Fork del repo
 2. Crear branch para tu feature
 3. Commit y push
 4. Abrir Pull Request
+
+## 📜 Licencia
+
+Este proyecto está bajo **Creative Commons BY-NC-SA 4.0**.
+
+**✅ Permite:** Uso personal/educativo, modificaciones, contribuciones
+**❌ Prohíbe:** Uso comercial (bootcamps, apps comerciales)
+**📋 Requiere:** Atribución al autor, misma licencia para derivados
+
+**Resumen rápido:** [LICENSE](LICENSE) | **Detalles:** [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
 ## 📚 Recursos
 
