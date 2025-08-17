@@ -210,16 +210,36 @@ check_argocd() {
 setup_argocd_connection() {
     log_info "Configurando conexión de ArgoCD CLI..."
     
-    # Obtener información del cluster
-    local cluster_info=$(kubectl cluster-info | grep "Kubernetes control plane" | awk '{print $NF}')
-    local argocd_service=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null)
+    # Verificar si MetalLB está funcionando realmente
+    local metallb_working=false
+    if kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null | grep -q '^[0-9]'; then
+        local lb_ip=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+        log_info "Detectado LoadBalancer IP: $lb_ip"
+        
+        # Verificar si realmente responde (timeout de 5 segundos)
+        if timeout 5 bash -c "</dev/tcp/$lb_ip/443" 2>/dev/null; then
+            metallb_working=true
+            log_info "LoadBalancer está funcionando correctamente"
+        else
+            log_warning "LoadBalancer detectado pero no responde, usando port-forward"
+        fi
+    fi
     
-    if [[ -n "$argocd_service" ]]; then
-        # Si hay LoadBalancer externo
-        log_info "ArgoCD disponible en LoadBalancer: $argocd_service"
-        argocd cluster add --insecure --server "https://$argocd_service" $(kubectl config current-context)
-    else
-        # Usar port-forward como fallback
+    if [[ "$metallb_working" == true ]]; then
+        # Si MetalLB está funcionando realmente
+        local argocd_service=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+        log_info "Conectando a ArgoCD via LoadBalancer: $argocd_service"
+        
+        if argocd cluster add --insecure --server "https://$argocd_service" $(kubectl config current-context); then
+            log_success "Conexión a ArgoCD configurada exitosamente via LoadBalancer"
+        else
+            log_warning "Error al conectar via LoadBalancer, usando port-forward como fallback"
+            metallb_working=false
+        fi
+    fi
+    
+    if [[ "$metallb_working" == false ]]; then
+        # Usar port-forward como método principal o fallback
         log_info "Configurando port-forward para ArgoCD..."
         log_warning "Se abrirá un port-forward en background. Presiona Ctrl+C para detenerlo cuando termines."
         
@@ -232,7 +252,7 @@ setup_argocd_connection() {
         
         # Agregar el cluster local
         if argocd cluster add --insecure --server "https://localhost:8080" $(kubectl config current-context); then
-            log_success "Conexión a ArgoCD configurada exitosamente"
+            log_success "Conexión a ArgoCD configurada exitosamente via port-forward"
             log_info "Port-forward ejecutándose en PID: $port_forward_pid"
             log_info "Para detener el port-forward: kill $port_forward_pid"
         else
