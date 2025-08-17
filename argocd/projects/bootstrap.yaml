@@ -11,7 +11,7 @@ spec:
   # Source repositories
   sourceRepos:
     - "https://github.com/fede-r1c0/homelab"
-    - "https://bitnami.github.io/sealed-secrets"
+    - "https://bitnami-labs.github.io/sealed-secrets"
     - "https://metallb.github.io/metallb"
     - "https://charts.jetstack.io"
 
