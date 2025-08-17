@@ -222,32 +222,86 @@ setup_argocd_connection() {
     if [[ -n "$ARGOCD_URL" ]]; then
         log_info "Usando URL configurada: $ARGOCD_URL"
         
-        if argocd cluster add --insecure --server "$ARGOCD_URL" $(kubectl config current-context); then
-            log_success "Conexión a ArgoCD configurada exitosamente con URL: $ARGOCD_URL"
+        # Limpiar URL de protocolos si los tiene
+        local clean_url="$ARGOCD_URL"
+        clean_url="${clean_url#http://}"
+        clean_url="${clean_url#https://}"
+        
+        log_info "URL limpia para ArgoCD CLI: $clean_url"
+        
+        if argocd cluster add --insecure --server "$clean_url" $(kubectl config current-context); then
+            log_success "Conexión a ArgoCD configurada exitosamente con URL: $clean_url"
             return 0
         else
-            log_warning "Error al conectar con URL configurada, usando port-forward como fallback"
+            log_warning "Error al conectar con URL configurada, usando alternativas..."
         fi
     fi
     
-    # Estrategia 2: Conectar directamente al servicio interno de Kubernetes
-    log_info "Conectando directamente al servicio ArgoCD interno..."
+    # Estrategia 2: Detección inteligente del tipo de servicio
+    log_info "Analizando configuración del servicio ArgoCD..."
     
-    # Obtener la IP del ClusterIP del servicio
+    # Obtener información completa del servicio
+    local service_type=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.spec.type}' 2>/dev/null)
     local cluster_ip=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.spec.clusterIP}' 2>/dev/null)
     local service_port=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.spec.ports[?(@.name=="http")].port}' 2>/dev/null)
     
-    if [[ -n "$cluster_ip" && -n "$service_port" ]]; then
-        log_info "Servicio ArgoCD encontrado: $cluster_ip:$service_port"
-        
-        # Intentar conectar directamente al ClusterIP
-        if argocd cluster add --insecure --server "$cluster_ip:$service_port" $(kubectl config current-context); then
-            log_success "Conexión a ArgoCD configurada exitosamente via ClusterIP: $cluster_ip:$service_port"
-            return 0
-        else
-            log_warning "Error al conectar via ClusterIP, intentando con port-forward..."
-        fi
-    fi
+    log_info "Servicio ArgoCD detectado:"
+    log_info "  Tipo: $service_type"
+    log_info "  ClusterIP: $cluster_ip"
+    log_info "  Puerto HTTP: $service_port"
+    
+    # Estrategia según el tipo de servicio
+    case "$service_type" in
+        "LoadBalancer")
+            log_info "Servicio LoadBalancer detectado, verificando IP externa..."
+            local external_ip=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null)
+            
+            if [[ -n "$external_ip" && "$external_ip" != "<none>" ]]; then
+                log_info "LoadBalancer con IP externa: $external_ip:$service_port"
+                
+                # Para LoadBalancer, usar ClusterIP desde dentro del cluster
+                if [[ -n "$cluster_ip" && -n "$service_port" ]]; then
+                    log_info "Conectando via ClusterIP interno: $cluster_ip:$service_port"
+                    if argocd cluster add --insecure --server "$cluster_ip:$service_port" $(kubectl config current-context); then
+                        log_success "Conexión exitosa via ClusterIP (LoadBalancer): $cluster_ip:$service_port"
+                        return 0
+                    fi
+                fi
+            else
+                log_warning "LoadBalancer sin IP externa asignada"
+            fi
+            ;;
+            
+        "ClusterIP")
+            log_info "Servicio ClusterIP detectado"
+            if [[ -n "$cluster_ip" && -n "$service_port" ]]; then
+                log_info "Conectando via ClusterIP: $cluster_ip:$service_port"
+                if argocd cluster add --insecure --server "$cluster_ip:$service_port" $(kubectl config current-context); then
+                    log_success "Conexión exitosa via ClusterIP: $cluster_ip:$service_port"
+                    return 0
+                fi
+            fi
+            ;;
+            
+        "NodePort")
+            log_info "Servicio NodePort detectado"
+            local node_port=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.spec.ports[?(@.name=="http")].nodePort}' 2>/dev/null)
+            
+            if [[ -n "$cluster_ip" && -n "$service_port" ]]; then
+                log_info "Conectando via ClusterIP: $cluster_ip:$service_port (NodePort: $node_port)"
+                if argocd cluster add --insecure --server "$cluster_ip:$service_port" $(kubectl config current-context); then
+                    log_success "Conexión exitosa via ClusterIP (NodePort): $cluster_ip:$service_port"
+                    return 0
+                fi
+            fi
+            ;;
+            
+        *)
+            log_warning "Tipo de servicio desconocido: $service_type"
+            ;;
+    esac
+    
+    log_warning "No se pudo conectar directamente al servicio, usando port-forward..."
     
     # Estrategia 3: Port-forward como último recurso
     log_info "Configurando port-forward al servicio ArgoCD..."
