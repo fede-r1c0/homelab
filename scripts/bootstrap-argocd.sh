@@ -206,6 +206,43 @@ check_argocd() {
     log_success "ArgoCD está funcionando correctamente"
 }
 
+# Configurar conexión de ArgoCD CLI
+setup_argocd_connection() {
+    log_info "Configurando conexión de ArgoCD CLI..."
+    
+    # Obtener información del cluster
+    local cluster_info=$(kubectl cluster-info | grep "Kubernetes control plane" | awk '{print $NF}')
+    local argocd_service=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null)
+    
+    if [[ -n "$argocd_service" ]]; then
+        # Si hay LoadBalancer externo
+        log_info "ArgoCD disponible en LoadBalancer: $argocd_service"
+        argocd cluster add --insecure --server "https://$argocd_service" $(kubectl config current-context)
+    else
+        # Usar port-forward como fallback
+        log_info "Configurando port-forward para ArgoCD..."
+        log_warning "Se abrirá un port-forward en background. Presiona Ctrl+C para detenerlo cuando termines."
+        
+        # Crear port-forward en background
+        kubectl port-forward svc/argocd-server -n $ARGOCD_NAMESPACE 8080:443 &
+        local port_forward_pid=$!
+        
+        # Esperar un momento para que el port-forward esté listo
+        sleep 5
+        
+        # Agregar el cluster local
+        if argocd cluster add --insecure --server "https://localhost:8080" $(kubectl config current-context); then
+            log_success "Conexión a ArgoCD configurada exitosamente"
+            log_info "Port-forward ejecutándose en PID: $port_forward_pid"
+            log_info "Para detener el port-forward: kill $port_forward_pid"
+        else
+            log_error "Error al configurar conexión a ArgoCD"
+            kill $port_forward_pid 2>/dev/null || true
+            exit 1
+        fi
+    fi
+}
+
 # Agregar repositorio a ArgoCD
 add_repository() {
     log_info "Agregando repositorio $REPO_URL a ArgoCD..."
@@ -287,6 +324,7 @@ main() {
     
     check_prerequisites
     check_argocd
+    setup_argocd_connection
     add_repository
     create_bootstrap_app
     sync_bootstrap_app
