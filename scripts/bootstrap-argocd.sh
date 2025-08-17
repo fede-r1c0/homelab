@@ -232,24 +232,24 @@ setup_argocd_connection() {
         
         log_info "Detectado LoadBalancer IP: $lb_ip, puerto HTTPS: $https_port"
         
-        # Verificar si realmente responde en el puerto correcto (timeout de 5 segundos)
-        if timeout 5 bash -c "</dev/tcp/$lb_ip/$https_port" 2>/dev/null; then
+        # Verificar si realmente responde en el puerto HTTP (timeout de 5 segundos)
+        if timeout 5 bash -c "</dev/tcp/$lb_ip/$http_port" 2>/dev/null; then
             metallb_working=true
-            log_info "LoadBalancer está funcionando correctamente en puerto $https_port"
+            log_info "LoadBalancer está funcionando correctamente en puerto HTTP $http_port"
         else
-            log_warning "LoadBalancer detectado pero no responde en puerto $https_port, usando port-forward"
+            log_warning "LoadBalancer detectado pero no responde en puerto HTTP $http_port, usando port-forward"
         fi
     fi
     
     if [[ "$metallb_working" == true ]]; then
         # Si MetalLB está funcionando realmente
         local argocd_service=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-        local https_port=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.spec.ports[?(@.port==443)].nodePort}')
+        local http_port=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.spec.ports[?(@.port==80)].nodePort}')
         
-        log_info "Conectando a ArgoCD via LoadBalancer: $argocd_service:$https_port"
+        log_info "Conectando a ArgoCD via LoadBalancer (HTTP): $argocd_service:$http_port"
         
-        if argocd cluster add --insecure --server "$argocd_service:$https_port" $(kubectl config current-context); then
-            log_success "Conexión a ArgoCD configurada exitosamente via LoadBalancer"
+        if argocd cluster add --insecure --server "$argocd_service:$http_port" $(kubectl config current-context); then
+            log_success "Conexión a ArgoCD configurada exitosamente via LoadBalancer (HTTP)"
         else
             log_warning "Error al conectar via LoadBalancer, usando port-forward como fallback"
             metallb_working=false
