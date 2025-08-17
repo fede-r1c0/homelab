@@ -44,9 +44,13 @@ sudo apt install -y linux-modules-extra-raspi
 ```
 
 ### **2. Instalación de k3s**
+
+#### **⚠️ Importante: Deshabilitar Klipper para MetalLB**
+K3s viene con **Klipper** (su propio LoadBalancer), que entra en conflicto con **MetalLB**. Según la [documentación oficial de MetalLB](https://metallb.io/configuration/k3s/), debemos deshabilitar Klipper con `--disable servicelb`.
+
 ```bash
-# Instalar K3S sin Traefik (usaremos Cilium)
-curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--flannel-backend=none --disable-network-policy --disable=traefik" sh -
+# Instalar K3S sin Traefik (usaremos Cilium) y sin Klipper (usaremos MetalLB)
+curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--flannel-backend=none --disable-network-policy --disable servicelb --disable=traefik" sh -
 
 # Verificar instalación
 sudo systemctl status k3s

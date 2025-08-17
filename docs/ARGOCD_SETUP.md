@@ -179,8 +179,12 @@ kubectl get ipaddresspools -n metallb-system
 # Una vez que MetalLB esté configurado y funcionando
 kubectl patch svc argocd-server -n argocd -p '{"spec":{"type":"LoadBalancer"}}'
 
-# Verificar que obtiene IP externa
-kubectl get svc argocd-server -n argocd
+# Verificar que obtiene IP externa (debería ser una IP del pool 192.168.68.100-105)
+kubectl get svc argocd-server -n argocd -w
+
+# Ejemplo de resultado esperado:
+# NAME            TYPE           CLUSTER-IP      EXTERNAL-IP      PORT(S)
+# argocd-server   LoadBalancer   10.43.181.160   192.168.68.100   80:31766/TCP,443:31617/TCP
 ```
 
 ### **cert-manager (02-cert-manager)**
