@@ -230,7 +230,7 @@ setup_argocd_connection() {
     if kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null | grep -q '^[0-9]'; then
         local lb_ip=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
         
-        log_info "Detectado LoadBalancer IP: $lb_ip, puerto HTTPS: $https_port"
+        log_info "Detectado LoadBalancer IP: $lb_ip, puerto HTTP: $http_port"
         
         # Verificar si realmente responde en el puerto HTTP (timeout de 5 segundos)
         if timeout 5 bash -c "</dev/tcp/$lb_ip/$http_port" 2>/dev/null; then
