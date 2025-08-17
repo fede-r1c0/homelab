@@ -12,7 +12,7 @@ spec:
   source:
     repoURL: https://github.com/fede-r1c0/homelab
     targetRevision: HEAD
-    path: argocd
+    path: argocd/applications
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
