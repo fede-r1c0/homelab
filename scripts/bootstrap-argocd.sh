@@ -247,14 +247,23 @@ setup_argocd_connection() {
         log_info "Configurando port-forward para ArgoCD..."
         log_warning "Se abrirá un port-forward en background. Presiona Ctrl+C para detenerlo cuando termines."
         
-        # Crear port-forward en background
-        kubectl port-forward svc/argocd-server -n $ARGOCD_NAMESPACE 8080:443 &
+        # Crear port-forward en background (usando puerto HTTP 80)
+        kubectl port-forward svc/argocd-server -n $ARGOCD_NAMESPACE 8080:80 &
         local port_forward_pid=$!
         
         # Esperar un momento para que el port-forward esté listo
         sleep 5
         
-        # Agregar el cluster local
+        # Verificar que el port-forward esté funcionando
+        if ! timeout 5 bash -c "</dev/tcp/localhost/8080" 2>/dev/null; then
+            log_error "Port-forward no está funcionando correctamente"
+            kill $port_forward_pid 2>/dev/null || true
+            exit 1
+        fi
+        
+        log_info "Port-forward verificado y funcionando en localhost:8080"
+        
+        # Agregar el cluster local (usando HTTP, no HTTPS)
         if argocd cluster add --insecure --server "localhost:8080" $(kubectl config current-context); then
             log_success "Conexión a ArgoCD configurada exitosamente via port-forward"
             log_info "Port-forward ejecutándose en PID: $port_forward_pid"
