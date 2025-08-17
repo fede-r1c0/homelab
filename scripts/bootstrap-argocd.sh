@@ -218,7 +218,50 @@ get_argocd_ports() {
 setup_argocd_connection() {
     log_info "Configurando conexión de ArgoCD CLI..."
     
-    # Usar port-forward directamente (más simple y confiable)
+    # Debug temporal: verificar variables
+    log_info "🔍 Debug - Variables cargadas:"
+    log_info "  SCRIPT_DIR: $SCRIPT_DIR"
+    log_info "  ARGOCD_LOCAL_PORT: '$ARGOCD_LOCAL_PORT'"
+    log_info "  ARGOCD_HTTP_PORT: '$ARGOCD_HTTP_PORT'"
+    log_info "  ARGOCD_NAMESPACE: '$ARGOCD_NAMESPACE'"
+    
+    # Fallback: si las variables no se cargan, usar valores por defecto
+    if [[ -z "$ARGOCD_LOCAL_PORT" || -z "$ARGOCD_HTTP_PORT" ]]; then
+        log_warning "Variables de puerto no cargadas, usando valores por defecto"
+        ARGOCD_LOCAL_PORT="8080"
+        ARGOCD_HTTP_PORT="80"
+        log_info "  ARGOCD_LOCAL_PORT (fallback): $ARGOCD_LOCAL_PORT"
+        log_info "  ARGOCD_HTTP_PORT (fallback): $ARGOCD_HTTP_PORT"
+    fi
+    
+    # Intentar usar LoadBalancer primero (más eficiente)
+    log_info "Intentando conectar via LoadBalancer..."
+    
+    # Obtener IP del LoadBalancer
+    local lb_ip=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null)
+    
+    if [[ -n "$lb_ip" ]]; then
+        log_info "LoadBalancer detectado en IP: $lb_ip"
+        
+        # Verificar si responde en puerto 80 (HTTP)
+        if timeout 5 bash -c "</dev/tcp/$lb_ip/80" 2>/dev/null; then
+            log_info "LoadBalancer responde correctamente en puerto 80"
+            
+            # Conectar via LoadBalancer
+            if argocd cluster add --insecure --server "$lb_ip:80" $(kubectl config current-context); then
+                log_success "Conexión a ArgoCD configurada exitosamente via LoadBalancer"
+                return 0
+            else
+                log_warning "Error al conectar via LoadBalancer, usando port-forward como fallback"
+            fi
+        else
+            log_warning "LoadBalancer no responde en puerto 80, usando port-forward como fallback"
+        fi
+    else
+        log_info "No se detectó LoadBalancer, usando port-forward"
+    fi
+    
+    # Fallback: usar port-forward
     log_info "Configurando port-forward para ArgoCD..."
     
     # Crear port-forward en background
