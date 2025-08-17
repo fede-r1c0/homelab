@@ -114,9 +114,13 @@ tls:
   enabled: false
 
 # IP Address Pool configuration
-# This will be configured via a separate ConfigMap
-ipAddressPools: []
+ipAddressPools:
+  - name: default
+    addresses:
+      - 192.168.68.100-192.168.68.105 # Pool de IPs disponibles
 
 # L2 Advertisement configuration
-# This will be configured via a separate ConfigMap
-l2Advertisements: []
+l2Advertisements:
+  - name: default
+    ipAddressPools:
+      - default
