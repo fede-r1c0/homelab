@@ -72,6 +72,10 @@ speaker:
   networkPolicy:
     enabled: false
 
+  # Disable FRR for L2 mode (only needed for BGP)
+  frr:
+    enabled: false
+
 # RBAC configuration
 rbac:
   create: true
@@ -113,14 +117,9 @@ ingress:
 tls:
   enabled: false
 
-# IP Address Pool configuration
-ipAddressPools:
-  - name: default
-    addresses:
-      - 192.168.68.100-192.168.68.105 # Pool de IPs disponibles
+# Disable FRR globally (only needed for BGP, we use L2 mode)
+frr:
+  enabled: false
 
-# L2 Advertisement configuration
-l2Advertisements:
-  - name: default
-    ipAddressPools:
-      - default
+frrk8s:
+  enabled: false
