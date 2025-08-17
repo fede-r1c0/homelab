@@ -71,13 +71,8 @@ spec:
     - group: "bitnami.com"
       kind: "*"
 
-  # Sync policy
-  syncWindows:
-    - name: allow-sync
-      schedule: "0 0 * * *"
-      duration: 24h
-      kind: allow
-      applications:
-        - "sealed-secrets"
-        - "metallb"
-        - "cert-manager"
+  # Sync policy disabled for compatibility
+  # syncWindows:
+  #   - schedule: "0 0 * * *"
+  #     duration: 24h
+  #     kind: allow
