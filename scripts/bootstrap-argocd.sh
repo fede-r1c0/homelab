@@ -218,72 +218,45 @@ get_argocd_ports() {
 setup_argocd_connection() {
     log_info "Configurando conexión de ArgoCD CLI..."
     
-    # Debug temporal: verificar variables
-    log_info "🔍 Debug - Variables cargadas:"
-    log_info "  SCRIPT_DIR: $SCRIPT_DIR"
-    log_info "  ARGOCD_LOCAL_PORT: '$ARGOCD_LOCAL_PORT'"
-    log_info "  ARGOCD_HTTP_PORT: '$ARGOCD_HTTP_PORT'"
-    log_info "  ARGOCD_NAMESPACE: '$ARGOCD_NAMESPACE'"
-    
-    # Fallback: si las variables no se cargan, usar valores por defecto
-    if [[ -z "$ARGOCD_LOCAL_PORT" || -z "$ARGOCD_HTTP_PORT" ]]; then
-        log_warning "Variables de puerto no cargadas, usando valores por defecto"
-        ARGOCD_LOCAL_PORT="8080"
-        ARGOCD_HTTP_PORT="80"
-        log_info "  ARGOCD_LOCAL_PORT (fallback): $ARGOCD_LOCAL_PORT"
-        log_info "  ARGOCD_HTTP_PORT (fallback): $ARGOCD_HTTP_PORT"
-    fi
-    
-    # Intentar usar LoadBalancer primero (más eficiente)
-    log_info "Intentando conectar via LoadBalancer..."
-    
-    # Obtener IP del LoadBalancer
-    local lb_ip=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null)
-    
-    if [[ -n "$lb_ip" ]]; then
-        log_info "LoadBalancer detectado en IP: $lb_ip"
+    # Estrategia 1: URL configurada manualmente (más confiable)
+    if [[ -n "$ARGOCD_URL" ]]; then
+        log_info "Usando URL configurada: $ARGOCD_URL"
         
-        # Verificar si responde en puerto 80 (HTTP)
-        if timeout 5 bash -c "</dev/tcp/$lb_ip/80" 2>/dev/null; then
-            log_info "LoadBalancer responde correctamente en puerto 80"
-            
-            # Conectar via LoadBalancer
-            if argocd cluster add --insecure --server "$lb_ip:80" $(kubectl config current-context); then
-                log_success "Conexión a ArgoCD configurada exitosamente via LoadBalancer"
-                return 0
-            else
-                log_warning "Error al conectar via LoadBalancer, usando port-forward como fallback"
-            fi
+        if argocd cluster add --insecure --server "$ARGOCD_URL" $(kubectl config current-context); then
+            log_success "Conexión a ArgoCD configurada exitosamente con URL: $ARGOCD_URL"
+            return 0
         else
-            log_warning "LoadBalancer no responde en puerto 80, usando port-forward como fallback"
+            log_warning "Error al conectar con URL configurada, usando port-forward como fallback"
         fi
-    else
-        log_info "No se detectó LoadBalancer, usando port-forward"
     fi
     
-    # Fallback: usar port-forward
-    log_info "Configurando port-forward para ArgoCD..."
+    # Estrategia 2: Port-forward al servicio ClusterIP (método confiable)
+    log_info "Configurando port-forward al servicio ArgoCD..."
+    
+    # Usar valores por defecto seguros
+    local local_port="${ARGOCD_LOCAL_PORT:-8000}"
+    local target_port="${ARGOCD_HTTP_PORT:-80}"
+    
+    log_info "Port-forward: localhost:$local_port -> svc/argocd-server:$target_port"
     
     # Crear port-forward en background
-    # Mapeo: puerto local configurado → puerto interno del servicio
-    kubectl port-forward svc/argocd-server -n $ARGOCD_NAMESPACE $ARGOCD_LOCAL_PORT:$ARGOCD_HTTP_PORT &
+    kubectl port-forward svc/argocd-server -n $ARGOCD_NAMESPACE $local_port:$target_port &
     local port_forward_pid=$!
     
     # Esperar un momento para que el port-forward esté listo
-    sleep 5
+    sleep 10
     
     # Verificar que el port-forward esté funcionando
-    if ! timeout 5 bash -c "</dev/tcp/localhost/$ARGOCD_LOCAL_PORT" 2>/dev/null; then
-        log_error "Port-forward no está funcionando correctamente en puerto $ARGOCD_LOCAL_PORT"
+    if ! timeout 10 bash -c "</dev/tcp/localhost/$local_port" 2>/dev/null; then
+        log_error "Port-forward no está funcionando correctamente en puerto $local_port"
         kill $port_forward_pid 2>/dev/null || true
         exit 1
     fi
     
-    log_info "Port-forward verificado y funcionando en localhost:$ARGOCD_LOCAL_PORT"
-    log_info "Mapeando puerto local $ARGOCD_LOCAL_PORT → puerto interno $ARGOCD_HTTP_PORT"
+    log_info "Port-forward verificado y funcionando en localhost:$local_port"
     
     # Agregar el cluster local
-    if argocd cluster add --insecure --server "localhost:$ARGOCD_LOCAL_PORT" $(kubectl config current-context); then
+    if argocd cluster add --insecure --server "localhost:$local_port" $(kubectl config current-context); then
         log_success "Conexión a ArgoCD configurada exitosamente via port-forward"
         log_info "Port-forward ejecutándose en PID: $port_forward_pid"
         log_info "Para detener el port-forward: kill $port_forward_pid"
