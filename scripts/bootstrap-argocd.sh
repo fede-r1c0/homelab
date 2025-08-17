@@ -241,7 +241,7 @@ setup_argocd_connection() {
         log_info "  Test HTTPS: $https_test"
         
         # Intentar conexión con ArgoCD CLI
-        if argocd cluster add --insecure --server "$clean_url" $(kubectl config current-context); then
+        if argocd cluster add --insecure --yes --upsert --server "$clean_url" $(kubectl config current-context); then
             log_success "Conexión a ArgoCD configurada exitosamente con URL: $clean_url"
             return 0
         else
@@ -250,7 +250,7 @@ setup_argocd_connection() {
             # Si es localhost:80, intentar con HTTPS en puerto 443
             if [[ "$clean_url" == "localhost:80" ]]; then
                 log_info "Intentando con HTTPS en puerto 443..."
-                if argocd cluster add --insecure --server "localhost:443" $(kubectl config current-context); then
+                if argocd cluster add --insecure --yes --upsert --server "localhost:443" $(kubectl config current-context); then
                     log_success "Conexión a ArgoCD configurada exitosamente con HTTPS: localhost:443"
                     return 0
                 fi
@@ -288,7 +288,7 @@ setup_argocd_connection() {
                 
                 if [[ -n "$cluster_ip" && -n "$target_port" ]]; then
                     log_info "Conectando via ClusterIP interno: $cluster_ip:$target_port (puerto interno real)"
-                    if argocd cluster add --insecure --server "$cluster_ip:$target_port" $(kubectl config current-context); then
+                    if argocd cluster add --insecure --yes --upsert --server "$cluster_ip:$target_port" $(kubectl config current-context); then
                         log_success "Conexión exitosa via ClusterIP (LoadBalancer): $cluster_ip:$target_port"
                         return 0
                     fi
@@ -304,7 +304,7 @@ setup_argocd_connection() {
             
             if [[ -n "$cluster_ip" && -n "$target_port" ]]; then
                 log_info "Conectando via ClusterIP: $cluster_ip:$target_port (puerto interno real)"
-                if argocd cluster add --insecure --server "$cluster_ip:$target_port" $(kubectl config current-context); then
+                if argocd cluster add --insecure --yes --upsert --server "$cluster_ip:$target_port" $(kubectl config current-context); then
                     log_success "Conexión exitosa via ClusterIP: $cluster_ip:$target_port"
                     return 0
                 fi
@@ -318,7 +318,7 @@ setup_argocd_connection() {
             
             if [[ -n "$cluster_ip" && -n "$target_port" ]]; then
                 log_info "Conectando via ClusterIP: $cluster_ip:$target_port (puerto interno real, NodePort: $node_port)"
-                if argocd cluster add --insecure --server "$cluster_ip:$target_port" $(kubectl config current-context); then
+                if argocd cluster add --insecure --yes --upsert --server "$cluster_ip:$target_port" $(kubectl config current-context); then
                     log_success "Conexión exitosa via ClusterIP (NodePort): $cluster_ip:$target_port"
                     return 0
                 fi
@@ -358,7 +358,7 @@ setup_argocd_connection() {
     log_info "Port-forward verificado y funcionando en localhost:$local_port"
     
     # Agregar el cluster local
-    if argocd cluster add --insecure --server "localhost:$local_port" $(kubectl config current-context); then
+    if argocd cluster add --insecure --yes --upsert --server "localhost:$local_port" $(kubectl config current-context); then
         log_success "Conexión a ArgoCD configurada exitosamente via port-forward"
         log_info "Port-forward ejecutándose en PID: $port_forward_pid"
         log_info "Para detener el port-forward: kill $port_forward_pid"
