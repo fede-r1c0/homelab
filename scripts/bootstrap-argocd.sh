@@ -230,7 +230,26 @@ setup_argocd_connection() {
         fi
     fi
     
-    # Estrategia 2: Port-forward al servicio ClusterIP (método confiable)
+    # Estrategia 2: Conectar directamente al servicio interno de Kubernetes
+    log_info "Conectando directamente al servicio ArgoCD interno..."
+    
+    # Obtener la IP del ClusterIP del servicio
+    local cluster_ip=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.spec.clusterIP}' 2>/dev/null)
+    local service_port=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.spec.ports[?(@.name=="http")].port}' 2>/dev/null)
+    
+    if [[ -n "$cluster_ip" && -n "$service_port" ]]; then
+        log_info "Servicio ArgoCD encontrado: $cluster_ip:$service_port"
+        
+        # Intentar conectar directamente al ClusterIP
+        if argocd cluster add --insecure --server "$cluster_ip:$service_port" $(kubectl config current-context); then
+            log_success "Conexión a ArgoCD configurada exitosamente via ClusterIP: $cluster_ip:$service_port"
+            return 0
+        else
+            log_warning "Error al conectar via ClusterIP, intentando con port-forward..."
+        fi
+    fi
+    
+    # Estrategia 3: Port-forward como último recurso
     log_info "Configurando port-forward al servicio ArgoCD..."
     
     # Usar valores por defecto seguros
