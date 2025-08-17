@@ -8,13 +8,21 @@ metadata:
     phase: "01"
 spec:
   project: bootstrap
-  source:
-    repoURL: https://metallb.github.io/metallb
-    chart: metallb
-    targetRevision: 0.13.12
-    helm:
-      valueFiles:
-        - https://raw.githubusercontent.com/fede-r1c0/homelab/main/apps/01-metallb/values.yaml
+  sources:
+    - repoURL: https://metallb.github.io/metallb
+      chart: metallb
+      targetRevision: 0.15.2
+      helm:
+        valueFiles:
+          - $values/apps/01-metallb/values.yaml
+    - repoURL: https://github.com/fede-r1c0/homelab
+      targetRevision: HEAD
+      ref: values
+    - repoURL: https://github.com/fede-r1c0/homelab
+      targetRevision: HEAD
+      path: apps/01-metallb
+      directory:
+        include: "metallb-config.yaml"
   destination:
     server: https://kubernetes.default.svc
     namespace: metallb-system
