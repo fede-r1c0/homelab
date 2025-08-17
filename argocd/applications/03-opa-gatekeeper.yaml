@@ -5,7 +5,7 @@ metadata:
   namespace: argocd
   labels:
     project: security
-    phase: 03
+    phase: "03"
 spec:
   project: security
   source:

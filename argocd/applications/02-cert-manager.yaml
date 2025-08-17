@@ -5,7 +5,7 @@ metadata:
   namespace: argocd
   labels:
     project: bootstrap
-    phase: 02
+    phase: "02"
 spec:
   project: bootstrap
   source:

@@ -5,7 +5,7 @@ metadata:
   namespace: argocd
   labels:
     project: monitoring
-    phase: 04
+    phase: "04"
 spec:
   project: monitoring
   source:
