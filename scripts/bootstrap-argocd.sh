@@ -32,18 +32,153 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
+# Función para detectar arquitectura
+detect_architecture() {
+    local arch=$(uname -m)
+    case $arch in
+        x86_64|amd64)
+            echo "amd64"
+            ;;
+        aarch64|arm64)
+            echo "arm64"
+            ;;
+        armv7l|armv8l)
+            echo "arm"
+            ;;
+        *)
+            echo "amd64"  # fallback
+            ;;
+    esac
+}
+
+# Función para instalar kubectl
+install_kubectl() {
+    log_info "Verificando kubectl..."
+    
+    if command -v kubectl &> /dev/null; then
+        log_success "kubectl ya está instalado"
+        kubectl version --client
+        return 0
+    fi
+    
+    log_info "📥 Instalando kubectl..."
+    
+    local arch=$(detect_architecture)
+    log_info "Arquitectura detectada: $arch"
+    
+    # Detectar sistema operativo
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        # Linux
+        log_info "Instalando kubectl en Linux ($arch)..."
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/$arch/kubectl"
+        chmod +x kubectl
+        sudo mv kubectl /usr/local/bin/
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS
+        log_info "Instalando kubectl en macOS..."
+        if command -v brew &> /dev/null; then
+            brew install kubectl
+        else
+            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/darwin/$arch/kubectl"
+            chmod +x kubectl
+            sudo mv kubectl /usr/local/bin/
+        fi
+    else
+        log_error "Sistema operativo no soportado: $OSTYPE"
+        log_info "📖 Instala kubectl manualmente desde: https://kubernetes.io/docs/tasks/tools/install-kubectl/"
+        return 1
+    fi
+    
+    # Verificar instalación
+    if command -v kubectl &> /dev/null; then
+        log_success "kubectl instalado exitosamente"
+        kubectl version --client
+    else
+        log_error "Error al instalar kubectl"
+        return 1
+    fi
+}
+
+# Función para instalar ArgoCD CLI
+install_argocd_cli() {
+    log_info "Verificando ArgoCD CLI..."
+    
+    if command -v argocd &> /dev/null; then
+        log_success "ArgoCD CLI ya está instalado"
+        argocd version --client
+        return 0
+    fi
+    
+    log_info "📥 Instalando ArgoCD CLI..."
+    
+    local arch=$(detect_architecture)
+    log_info "Arquitectura detectada: $arch"
+    
+    # Detectar sistema operativo
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        # Linux
+        if command -v apt-get &> /dev/null; then
+            # Debian/Ubuntu
+            log_info "Instalando en sistema Debian/Ubuntu ($arch)..."
+            curl -sSL -o "argocd-linux-$arch" "https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-$arch"
+            sudo install -m 555 "argocd-linux-$arch" /usr/local/bin/argocd
+            rm "argocd-linux-$arch"
+        elif command -v yum &> /dev/null || command -v dnf &> /dev/null; then
+            # RHEL/CentOS/Fedora
+            log_info "Instalando en sistema RHEL/CentOS/Fedora ($arch)..."
+            curl -sSL -o "argocd-linux-$arch" "https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-$arch"
+            sudo install -m 555 "argocd-linux-$arch" /usr/local/bin/argocd
+            rm "argocd-linux-$arch"
+        else
+            log_error "Sistema Linux no soportado. Instala ArgoCD CLI manualmente."
+            return 1
+        fi
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS
+        log_info "Instalando en macOS ($arch)..."
+        if command -v brew &> /dev/null; then
+            brew install argocd
+        else
+            curl -sSL -o "argocd-darwin-$arch" "https://github.com/argoproj/argo-cd/releases/latest/download/argocd-darwin-$arch"
+            sudo install -m 555 "argocd-darwin-$arch" /usr/local/bin/argocd
+            rm "argocd-darwin-$arch"
+        fi
+    else
+        log_error "Sistema operativo no soportado: $OSTYPE"
+        log_info "📖 Instala ArgoCD CLI manualmente desde: https://argo-cd.readthedocs.io/en/stable/cli_installation/"
+        return 1
+    fi
+    
+    # Verificar instalación
+    if command -v argocd &> /dev/null; then
+        log_success "ArgoCD CLI instalado exitosamente"
+        argocd version --client
+    else
+        log_error "Error al instalar ArgoCD CLI"
+        return 1
+    fi
+}
+
 # Verificar prerrequisitos
 check_prerequisites() {
     log_info "Verificando prerrequisitos..."
     
+    # Instalar kubectl si no está disponible
     if ! command -v kubectl &> /dev/null; then
-        log_error "kubectl no está instalado"
-        exit 1
+        log_warning "kubectl no está instalado, intentando instalarlo..."
+        if ! install_kubectl; then
+            log_error "No se pudo instalar kubectl. Instálalo manualmente."
+            exit 1
+        fi
     fi
     
+    # Instalar ArgoCD CLI si no está disponible
     if ! command -v argocd &> /dev/null; then
-        log_error "argocd CLI no está instalado"
-        exit 1
+        log_warning "ArgoCD CLI no está instalado, intentando instalarlo..."
+        if ! install_argocd_cli; then
+            log_error "No se pudo instalar ArgoCD CLI. Instálalo manualmente."
+            exit 1
+        fi
     fi
     
     # Verificar que el cluster esté funcionando
