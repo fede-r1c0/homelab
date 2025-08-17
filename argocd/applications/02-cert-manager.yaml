@@ -8,13 +8,16 @@ metadata:
     phase: "02"
 spec:
   project: bootstrap
-  source:
-    repoURL: https://charts.jetstack.io
-    chart: cert-manager
-    targetRevision: v1.13.3
-    helm:
-      valueFiles:
-        - https://raw.githubusercontent.com/fede-r1c0/homelab/main/apps/02-cert-manager/values.yaml
+  sources:
+    - repoURL: https://charts.jetstack.io
+      chart: cert-manager
+      targetRevision: v1.18.2
+      helm:
+        valueFiles:
+          - $values/apps/02-cert-manager/values.yaml
+    - repoURL: https://github.com/fede-r1c0/homelab
+      targetRevision: HEAD
+      ref: values
   destination:
     server: https://kubernetes.default.svc
     namespace: cert-manager

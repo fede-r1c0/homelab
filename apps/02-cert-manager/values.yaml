@@ -5,61 +5,52 @@
 global:
   leaderElection:
     namespace: cert-manager
-    # Disable leader election for single node
-    enabled: false
 
 # Install CRDs
 installCRDs: true
 
 # Controller configuration
-controller:
-  # Resource limits optimized for Raspberry Pi
+replicaCount: 1
+
+resources:
+  requests:
+    memory: 128Mi
+    cpu: 100m
+  limits:
+    memory: 256Mi
+    cpu: 200m
+
+# Security context
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  runAsGroup: 1001
+  fsGroup: 1001
+
+# Pod disruption budget (disabled for single node)
+podDisruptionBudget:
+  enabled: false
+
+# Network policy (disabled for simplicity)
+networkPolicy:
+  enabled: false
+
+# Webhook configuration
+webhook:
+  replicaCount: 1
+  timeoutSeconds: 30
   resources:
     requests:
+      memory: 64Mi
+      cpu: 50m
+    limits:
       memory: 128Mi
       cpu: 100m
-    limits:
-      memory: 256Mi
-      cpu: 200m
-
-  # Security context
   securityContext:
     runAsNonRoot: true
     runAsUser: 1001
     runAsGroup: 1001
     fsGroup: 1001
-
-  # Service configuration
-  service:
-    type: ClusterIP
-
-  # High availability (disabled for single node)
-  replicaCount: 1
-
-  # Pod disruption budget
-  podDisruptionBudget:
-    enabled: false
-
-  # Pod security policy
-  podSecurityPolicy:
-    enabled: false
-
-  # Network policy
-  networkPolicy:
-    enabled: false
-
-  # Webhook configuration
-  webhook:
-    enabled: true
-    timeoutSeconds: 30
-    # Resource limits for webhook
-    resources:
-      requests:
-        memory: 64Mi
-        cpu: 50m
-      limits:
-        memory: 128Mi
-        cpu: 100m
 
 # CA Injector configuration
 cainjector:
