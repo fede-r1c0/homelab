@@ -234,7 +234,7 @@ setup_argocd_connection() {
         
         log_info "Conectando a ArgoCD via LoadBalancer: $argocd_service:$https_port"
         
-        if argocd cluster add --insecure --server "https://$argocd_service:$https_port" $(kubectl config current-context); then
+        if argocd cluster add --insecure --server "$argocd_service:$https_port" $(kubectl config current-context); then
             log_success "Conexión a ArgoCD configurada exitosamente via LoadBalancer"
         else
             log_warning "Error al conectar via LoadBalancer, usando port-forward como fallback"
@@ -255,7 +255,7 @@ setup_argocd_connection() {
         sleep 5
         
         # Agregar el cluster local
-        if argocd cluster add --insecure --server "https://localhost:8080" $(kubectl config current-context); then
+        if argocd cluster add --insecure --server "localhost:8080" $(kubectl config current-context); then
             log_success "Conexión a ArgoCD configurada exitosamente via port-forward"
             log_info "Port-forward ejecutándose en PID: $port_forward_pid"
             log_info "Para detener el port-forward: kill $port_forward_pid"
