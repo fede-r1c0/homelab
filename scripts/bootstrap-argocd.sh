@@ -214,23 +214,27 @@ setup_argocd_connection() {
     local metallb_working=false
     if kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null | grep -q '^[0-9]'; then
         local lb_ip=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-        log_info "Detectado LoadBalancer IP: $lb_ip"
+        local https_port=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.spec.ports[?(@.port==443)].nodePort}')
         
-        # Verificar si realmente responde (timeout de 5 segundos)
-        if timeout 5 bash -c "</dev/tcp/$lb_ip/443" 2>/dev/null; then
+        log_info "Detectado LoadBalancer IP: $lb_ip, puerto HTTPS: $https_port"
+        
+        # Verificar si realmente responde en el puerto correcto (timeout de 5 segundos)
+        if timeout 5 bash -c "</dev/tcp/$lb_ip/$https_port" 2>/dev/null; then
             metallb_working=true
-            log_info "LoadBalancer está funcionando correctamente"
+            log_info "LoadBalancer está funcionando correctamente en puerto $https_port"
         else
-            log_warning "LoadBalancer detectado pero no responde, usando port-forward"
+            log_warning "LoadBalancer detectado pero no responde en puerto $https_port, usando port-forward"
         fi
     fi
     
     if [[ "$metallb_working" == true ]]; then
         # Si MetalLB está funcionando realmente
         local argocd_service=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-        log_info "Conectando a ArgoCD via LoadBalancer: $argocd_service"
+        local https_port=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.spec.ports[?(@.port==443)].nodePort}')
         
-        if argocd cluster add --insecure --server "https://$argocd_service" $(kubectl config current-context); then
+        log_info "Conectando a ArgoCD via LoadBalancer: $argocd_service:$https_port"
+        
+        if argocd cluster add --insecure --server "https://$argocd_service:$https_port" $(kubectl config current-context); then
             log_success "Conexión a ArgoCD configurada exitosamente via LoadBalancer"
         else
             log_warning "Error al conectar via LoadBalancer, usando port-forward como fallback"
