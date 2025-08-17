@@ -206,15 +206,29 @@ check_argocd() {
     log_success "ArgoCD está funcionando correctamente"
 }
 
+# Función para obtener puertos del servicio ArgoCD
+get_argocd_ports() {
+    local http_port=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.spec.ports[?(@.port==80)].nodePort}' 2>/dev/null)
+    local https_port=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.spec.ports[?(@.port==443)].nodePort}' 2>/dev/null)
+    
+    echo "$http_port:$https_port"
+}
+
 # Configurar conexión de ArgoCD CLI
 setup_argocd_connection() {
     log_info "Configurando conexión de ArgoCD CLI..."
+    
+    # Obtener puertos del servicio
+    local ports=$(get_argocd_ports)
+    local http_port=$(echo $ports | cut -d: -f1)
+    local https_port=$(echo $ports | cut -d: -f2)
+    
+    log_info "Puertos detectados - HTTP: $http_port, HTTPS: $https_port"
     
     # Verificar si MetalLB está funcionando realmente
     local metallb_working=false
     if kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null | grep -q '^[0-9]'; then
         local lb_ip=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-        local https_port=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.spec.ports[?(@.port==443)].nodePort}')
         
         log_info "Detectado LoadBalancer IP: $lb_ip, puerto HTTPS: $https_port"
         
@@ -247,7 +261,7 @@ setup_argocd_connection() {
         log_info "Configurando port-forward para ArgoCD..."
         log_warning "Se abrirá un port-forward en background. Presiona Ctrl+C para detenerlo cuando termines."
         
-        # Crear port-forward en background (usando puerto HTTP 80)
+        # Crear port-forward en background (usando puerto HTTP 80 interno)
         kubectl port-forward svc/argocd-server -n $ARGOCD_NAMESPACE 8080:80 &
         local port_forward_pid=$!
         
@@ -262,6 +276,7 @@ setup_argocd_connection() {
         fi
         
         log_info "Port-forward verificado y funcionando en localhost:8080"
+        log_info "Mapeando puerto local 8080 → puerto interno 80 (NodePort: $http_port)"
         
         # Agregar el cluster local (usando HTTP, no HTTPS)
         if argocd cluster add --insecure --server "localhost:8080" $(kubectl config current-context); then
