@@ -11,6 +11,8 @@ spec:
   # Source repositories
   sourceRepos:
     - "https://github.com/fede-r1c0/homelab"
+    - "https://prometheus-community.github.io/helm-charts"
+    - "https://grafana.github.io/helm-charts"
 
   # Destination clusters and namespaces
   destinations:
