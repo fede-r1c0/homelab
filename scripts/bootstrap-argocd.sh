@@ -283,11 +283,11 @@ setup_argocd_connection() {
                 log_info "LoadBalancer con IP externa: $external_ip:$service_port"
                 
                 # Para LoadBalancer, usar ClusterIP desde dentro del cluster
-                # Pero necesitamos el puerto interno real (targetPort)
-                local target_port=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.spec.ports[?(@.name=="http")].targetPort}' 2>/dev/null)
+                # Usar el puerto del servicio (port), no el targetPort
+                local target_port=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.spec.ports[?(@.name=="http")].port}' 2>/dev/null)
                 
                 if [[ -n "$cluster_ip" && -n "$target_port" ]]; then
-                    log_info "Conectando via ClusterIP interno: $cluster_ip:$target_port (puerto interno real)"
+                    log_info "Conectando via ClusterIP interno: $cluster_ip:$target_port (puerto del servicio)"
                     if argocd cluster add --insecure --yes --upsert --server "$cluster_ip:$target_port" $(kubectl config current-context); then
                         log_success "Conexión exitosa via ClusterIP (LoadBalancer): $cluster_ip:$target_port"
                         return 0
@@ -300,7 +300,7 @@ setup_argocd_connection() {
             
         "ClusterIP")
             log_info "Servicio ClusterIP detectado"
-            local target_port=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.spec.ports[?(@.name=="http")].targetPort}' 2>/dev/null)
+            local target_port=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.spec.ports[?(@.name=="http")].port}' 2>/dev/null)
             
             if [[ -n "$cluster_ip" && -n "$target_port" ]]; then
                 log_info "Conectando via ClusterIP: $cluster_ip:$target_port (puerto interno real)"
@@ -314,7 +314,7 @@ setup_argocd_connection() {
         "NodePort")
             log_info "Servicio NodePort detectado"
             local node_port=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.spec.ports[?(@.name=="http")].nodePort}' 2>/dev/null)
-            local target_port=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.spec.ports[?(@.name=="http")].targetPort}' 2>/dev/null)
+            local target_port=$(kubectl get svc argocd-server -n $ARGOCD_NAMESPACE -o jsonpath='{.spec.ports[?(@.name=="http")].port}' 2>/dev/null)
             
             if [[ -n "$cluster_ip" && -n "$target_port" ]]; then
                 log_info "Conectando via ClusterIP: $cluster_ip:$target_port (puerto interno real, NodePort: $node_port)"
