@@ -49,6 +49,8 @@ spec:
       kind: "*"
     - group: ""
       kind: ResourceQuota
+    - group: "bitnami.com"
+      kind: "*"
 
   # Namespace resource allow list
   namespaceResourceWhitelist:
@@ -86,6 +88,8 @@ spec:
       kind: "*"
     - group: ""
       kind: ResourceQuota
+    - group: "bitnami.com"
+      kind: "*"
 
   # Sync policy disabled for compatibility
   # syncWindows:
