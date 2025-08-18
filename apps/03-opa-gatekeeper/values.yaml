@@ -5,11 +5,11 @@ logLevel: INFO
 
 resources:
   limits:
-    cpu: 1000m
-    memory: 512Mi
+    cpu: 200m
+    memory: 128Mi
   requests:
     cpu: 100m
-    memory: 256Mi
+    memory: 64Mi
 
 customResourceDefinitions:
   create: true

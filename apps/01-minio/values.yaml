@@ -7,10 +7,10 @@ mode: standalone
 # Resource optimization for ARM64/Raspberry Pi
 resources:
   requests:
-    memory: 256Mi
+    memory: 64Mi
     cpu: 100m
   limits:
-    memory: 512Mi
+    memory: 256Mi
     cpu: 200m
 
 # Storage configuration for homelab
