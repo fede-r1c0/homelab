@@ -14,11 +14,11 @@ container:
   # Resource limits optimized for Raspberry Pi
   resources:
     requests:
-      memory: 256Mi
-      cpu: 200m
+      memory: 64Mi
+      cpu: 100m
     limits:
-      memory: 512Mi
-      cpu: 400m
+      memory: 128Mi
+      cpu: 200m
 
   # Security context
   securityContext:
