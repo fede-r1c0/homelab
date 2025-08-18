@@ -25,6 +25,11 @@ prometheus:
     scrapeInterval: 30s
     evaluationInterval: 30s
     enableLifecycle: true
+    ruleSelectorNilUsesHelmValues: false
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    probeSelectorNilUsesHelmValues: false
+    scrapeConfigSelectorNilUsesHelmValues: false
 
 # Grafana optimization
 grafana:
