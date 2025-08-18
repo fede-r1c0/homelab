@@ -49,28 +49,19 @@ speaker:
       memory: 128Mi
       cpu: 200m
 
-  # Security context
   securityContext:
-    runAsNonRoot: true
-    runAsUser: 1001
-    runAsGroup: 1001
-    fsGroup: 1001
+    privileged: true
+    capabilities:
+      add:
+        - NET_ADMIN
+        - NET_RAW
+        - SYS_ADMIN
+
+  hostNetwork: true
 
   # DaemonSet configuration
   daemonSet:
     enabled: true
-
-  # Pod disruption budget
-  podDisruptionBudget:
-    enabled: false
-
-  # Pod security policy
-  podSecurityPolicy:
-    enabled: false
-
-  # Network policy
-  networkPolicy:
-    enabled: false
 
   # Disable FRR for L2 mode (only needed for BGP)
   frr:
@@ -93,29 +84,6 @@ serviceAccount:
   create: true
   name: "metallb-controller"
   annotations: {}
-
-# Pod annotations
-podAnnotations: {}
-
-# Pod labels
-podLabels: {}
-
-# Node selector
-nodeSelector: {}
-
-# Tolerations
-tolerations: []
-
-# Affinity
-affinity: {}
-
-# Ingress configuration (disabled for single node)
-ingress:
-  enabled: false
-
-# TLS configuration
-tls:
-  enabled: false
 
 # Disable FRR globally (only needed for BGP, we use L2 mode)
 frr:
