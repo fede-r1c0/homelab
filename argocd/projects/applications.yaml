@@ -11,6 +11,7 @@ spec:
   # Source repositories
   sourceRepos:
     - "https://github.com/fede-r1c0/homelab"
+    - "https://backstage.github.io/charts"
 
   # Destination clusters and namespaces
   destinations:
