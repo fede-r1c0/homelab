@@ -37,6 +37,14 @@ spec:
       kind: "*"
     - group: "tempo.grafana.com"
       kind: "*"
+    - group: "batch"
+      kind: Job
+    - group: "admissionregistration.k8s.io"
+      kind: ValidatingWebhookConfiguration
+    - group: "admissionregistration.k8s.io"
+      kind: MutatingWebhookConfiguration
+    - group: "policy"
+      kind: PodDisruptionBudget
 
   # Namespace resource allow list
   namespaceResourceWhitelist:
@@ -66,6 +74,10 @@ spec:
       kind: Ingress
     - group: "networking.k8s.io"
       kind: NetworkPolicy
+    - group: "batch"
+      kind: Job
+    - group: "policy"
+      kind: PodDisruptionBudget
 
   # Sync policy disabled for compatibility
   # syncWindows:
