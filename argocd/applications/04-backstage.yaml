@@ -8,13 +8,19 @@ metadata:
     phase: "04"
 spec:
   project: applications
-  source:
-    repoURL: https://backstage.github.io/charts
-    chart: backstage
-    targetRevision: 2.6.0
-    helm:
-      valueFiles:
-        - https://raw.githubusercontent.com/fede-r1c0/homelab/main/apps/04-backstage/values.yaml
+  sources:
+    - repoURL: https://backstage.github.io/charts
+      chart: backstage
+      targetRevision: 2.6.0
+      helm:
+        valueFiles:
+          - $values/apps/04-backstage/values.yaml
+    - repoURL: https://github.com/fede-r1c0/homelab
+      targetRevision: HEAD
+      ref: values
+      path: apps/04-backstage
+      directory:
+        include: "backstage-sealedsecret.yaml"
   destination:
     server: https://kubernetes.default.svc
     namespace: backstage
