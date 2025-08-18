@@ -5,13 +5,13 @@ metadata:
   namespace: argocd
   labels:
     project: applications
-    phase: "05"
+    phase: "04"
 spec:
   project: applications
   source:
     repoURL: https://github.com/fede-r1c0/homelab
     targetRevision: HEAD
-    path: apps/05-backstage
+    path: apps/04-backstage
     helm:
       valueFiles:
         - values.yaml

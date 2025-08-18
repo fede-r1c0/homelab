@@ -5,7 +5,7 @@ metadata:
   namespace: argocd
   labels:
     project: monitoring
-    phase: "04"
+    phase: "03"
 spec:
   project: monitoring
   sources:
@@ -14,11 +14,11 @@ spec:
       targetRevision: 76.4.0
       helm:
         valueFiles:
-          - $values/apps/04-prometheus-stack/kube-prometheus-stack/values.yaml
+          - $values/apps/03-prometheus-stack/kube-prometheus-stack/values.yaml
     - repoURL: https://github.com/fede-r1c0/homelab
       targetRevision: HEAD
       ref: values
-      path: apps/04-prometheus-stack/kube-prometheus-stack
+      path: apps/03-prometheus-stack/kube-prometheus-stack
       directory:
         include: "grafana-sealedsecret.yaml"
   destination:

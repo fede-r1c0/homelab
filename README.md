@@ -59,9 +59,8 @@ homelab/
 - **00-sealed-secrets**: Gestión segura de secretos
 - **01-metallb**: Load balancer para servicios
 - **02-cert-manager**: Certificados TLS automáticos
-- **03-opa-gatekeeper**: Políticas de seguridad
-- **04-prometheus-stack**: Observabilidad completa
-- **05-backstage**: Developer Portal
+- **03-prometheus-stack**: Observabilidad completa
+- **04-backstage**: Developer Portal
 
 > **Nota**: Las apps se instalan en este orden para respetar dependencias:
 
@@ -166,7 +165,6 @@ Una vez que todo esté funcionando:
 ## 🎯 Próximos Pasos
 
 - [ ] Configurar Backstage como Developer Portal
-- [ ] Agregar políticas de OPA Gatekeeper
 - [ ] Configurar alertas en Prometheus
 - [ ] Implementar backup automático
 - [ ] Probar más proyectos de la CNCF
