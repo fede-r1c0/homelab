@@ -8,6 +8,8 @@ prometheus:
   service: # Changed from ClusterIP to LoadBalancer
     type: LoadBalancer
   prometheusSpec:
+    annotations:
+    argocd.argoproj.io/skip-health-check: "true"
     retention: 3d
     resources:
       requests:
