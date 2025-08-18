@@ -50,13 +50,12 @@ speaker:
       cpu: 200m
 
   securityContext:
+    privileged: true
     capabilities:
       add:
         - NET_ADMIN
         - NET_RAW
         - SYS_ADMIN
-      drop:
-        - ALL
 
   hostNetwork: true
 
@@ -85,6 +84,29 @@ serviceAccount:
   create: true
   name: "metallb-controller"
   annotations: {}
+
+# Pod annotations
+podAnnotations: {}
+
+# Pod labels
+podLabels: {}
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}
+
+# Ingress configuration (disabled for single node)
+ingress:
+  enabled: false
+
+# TLS configuration
+tls:
+  enabled: false
 
 # Disable FRR globally (only needed for BGP, we use L2 mode)
 frr:
