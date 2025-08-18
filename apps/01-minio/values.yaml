@@ -15,9 +15,17 @@ resources:
 
 # Storage configuration for homelab
 persistence:
-  enabled: false
+  enabled: true
   size: 20Gi # Conservative storage for homelab
   storageClass: ""
 
-# MinIO credentials
+# Service configuration - Use LoadBalancer for external access
+service:
+  type: LoadBalancer # Changed from ClusterIP to LoadBalancer
+
+# Console service - Also use LoadBalancer for web UI
+consoleService:
+  type: LoadBalancer # Changed from ClusterIP to LoadBalancer
+
+# Use existing secret (created by sealed-secrets)
 existingSecret: "minio-secret"
