@@ -10,8 +10,6 @@ prometheus:
       limits:
         memory: 256Mi
         cpu: 200m
-    podDisruptionBudget:
-      enabled: false
     storageSpec:
       volumeClaimTemplate:
         spec:
