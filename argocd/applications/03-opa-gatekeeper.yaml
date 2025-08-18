@@ -9,9 +9,9 @@ metadata:
 spec:
   project: security
   source:
-    repoURL: https://open-policy-agent.github.io/gatekeeper
+    repoURL: https://open-policy-agent.github.io/gatekeeper/charts
     chart: gatekeeper
-    targetRevision: 3.12.0
+    targetRevision: 3.20.0
     helm:
       valueFiles:
         - https://raw.githubusercontent.com/fede-r1c0/homelab/main/apps/03-opa-gatekeeper/values.yaml

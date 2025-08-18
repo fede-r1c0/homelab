@@ -6,19 +6,14 @@ metadata:
   labels:
     project: security
 spec:
-  description: Security and compliance applications
-
-  # Source repositories
+  description: Security and compliance applications (sealed-secrets, OPA Gatekeeper)
   sourceRepos:
     - "https://github.com/fede-r1c0/homelab"
-    - "https://open-policy-agent.github.io/gatekeeper"
-
-  # Destination clusters and namespaces
+    - "https://bitnami-labs.github.io/sealed-secrets"
+    - "https://open-policy-agent.github.io/gatekeeper/charts"
   destinations:
     - namespace: "*"
       server: https://kubernetes.default.svc
-
-  # Cluster resource allow list
   clusterResourceWhitelist:
     - group: ""
       kind: Namespace
@@ -32,12 +27,14 @@ spec:
       kind: ValidatingWebhookConfiguration
     - group: "admissionregistration.k8s.io"
       kind: MutatingWebhookConfiguration
+    - group: "bitnami.com"
+      kind: "*"
     - group: "config.gatekeeper.sh"
       kind: "*"
     - group: "templates.gatekeeper.sh"
       kind: "*"
-
-  # Namespace resource allow list
+    - group: "status.gatekeeper.sh"
+      kind: "*"
   namespaceResourceWhitelist:
     - group: ""
       kind: ConfigMap
@@ -51,17 +48,15 @@ spec:
       kind: Deployment
     - group: "apps"
       kind: StatefulSet
-    - group: "apps"
-      kind: DaemonSet
     - group: "rbac.authorization.k8s.io"
       kind: Role
     - group: "rbac.authorization.k8s.io"
       kind: RoleBinding
-    - group: "networking.cilium.io"
+    - group: "bitnami.com"
       kind: "*"
-
-  # Sync policy disabled for compatibility
-  # syncWindows:
-  #   - schedule: "0 0 * * *"
-  #     duration: 24h
-  #     kind: allow
+    - group: "config.gatekeeper.sh"
+      kind: "*"
+    - group: "templates.gatekeeper.sh"
+      kind: "*"
+    - group: "status.gatekeeper.sh"
+      kind: "*"
