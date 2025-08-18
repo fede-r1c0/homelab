@@ -19,6 +19,9 @@ prometheus:
           resources:
             requests:
               storage: 5Gi # Conservative storage for homelab
+    scrapeInterval: 30s
+    evaluationInterval: 30s
+    enableLifecycle: true
 
 # Grafana optimization
 grafana:
