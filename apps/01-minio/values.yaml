@@ -1,0 +1,23 @@
+# Single-node optimization
+replicas: 1
+
+# MinIO mode
+mode: standalone
+
+# Resource optimization for ARM64/Raspberry Pi
+resources:
+  requests:
+    memory: 256Mi
+    cpu: 100m
+  limits:
+    memory: 512Mi
+    cpu: 200m
+
+# Storage configuration for homelab
+persistence:
+  enabled: false
+  size: 20Gi # Conservative storage for homelab
+  storageClass: ""
+
+# MinIO credentials
+existingSecret: "minio-secret"
