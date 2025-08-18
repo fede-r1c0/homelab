@@ -5,6 +5,8 @@ crds:
 # Prometheus optimization
 prometheus:
   enabled: true
+  service: # Changed from ClusterIP to LoadBalancer
+    type: LoadBalancer
   prometheusSpec:
     retention: 3d
     resources:
@@ -23,8 +25,6 @@ prometheus:
     scrapeInterval: 30s
     evaluationInterval: 30s
     enableLifecycle: true
-    service: # Changed from ClusterIP to LoadBalancer
-      type: LoadBalancer
 
 # Grafana optimization
 grafana:
@@ -47,6 +47,8 @@ grafana:
 # AlertManager optimization
 alertmanager:
   enabled: true
+  service: # Changed from ClusterIP to LoadBalancer
+    type: LoadBalancer
   alertmanagerSpec:
     resources:
       requests:
@@ -55,5 +57,3 @@ alertmanager:
       limits:
         memory: 64Mi
         cpu: 50m
-    service: # Changed from ClusterIP to LoadBalancer
-    type: LoadBalancer
