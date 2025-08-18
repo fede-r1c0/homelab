@@ -29,16 +29,11 @@ spec:
       kind: MutatingWebhookConfiguration
     - group: "bitnami.com"
       kind: "*"
-    - group: "config.gatekeeper.sh"
-      kind: "*"
-    - group: "templates.gatekeeper.sh"
-      kind: "*"
-    - group: "status.gatekeeper.sh"
-      kind: "*"
     - group: "policy"
       kind: PodDisruptionBudget
     - group: ""
       kind: ResourceQuota
+
   namespaceResourceWhitelist:
     - group: ""
       kind: ConfigMap
@@ -57,12 +52,6 @@ spec:
     - group: "rbac.authorization.k8s.io"
       kind: RoleBinding
     - group: "bitnami.com"
-      kind: "*"
-    - group: "config.gatekeeper.sh"
-      kind: "*"
-    - group: "templates.gatekeeper.sh"
-      kind: "*"
-    - group: "status.gatekeeper.sh"
       kind: "*"
     - group: "batch"
       kind: Job

@@ -11,10 +11,8 @@ spec:
   # Source repositories
   sourceRepos:
     - "https://github.com/fede-r1c0/homelab"
-    - "https://bitnami-labs.github.io/sealed-secrets"
     - "https://metallb.github.io/metallb"
     - "https://charts.jetstack.io"
-    - "https://charts.min.io/"
 
   # Destination clusters and namespaces
   destinations:
@@ -39,8 +37,6 @@ spec:
       kind: Application
     - group: "argoproj.io"
       kind: AppProject
-    - group: "minio.min.io"
-      kind: "*"
 
   # Namespace resource allow list
   namespaceResourceWhitelist:
@@ -84,8 +80,6 @@ spec:
       kind: Application
     - group: "argoproj.io"
       kind: AppProject
-    - group: "minio.min.io"
-      kind: "*"
 
   # Sync policy disabled for compatibility
   # syncWindows:
