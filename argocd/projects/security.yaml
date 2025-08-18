@@ -35,6 +35,10 @@ spec:
       kind: "*"
     - group: "status.gatekeeper.sh"
       kind: "*"
+    - group: "policy"
+      kind: PodDisruptionBudget
+    - group: ""
+      kind: ResourceQuota
   namespaceResourceWhitelist:
     - group: ""
       kind: ConfigMap
@@ -60,3 +64,9 @@ spec:
       kind: "*"
     - group: "status.gatekeeper.sh"
       kind: "*"
+    - group: "batch"
+      kind: Job
+    - group: "policy"
+      kind: PodDisruptionBudget
+    - group: ""
+      kind: ResourceQuota
