@@ -50,12 +50,13 @@ speaker:
       cpu: 200m
 
   securityContext:
-    privileged: true
     capabilities:
       add:
         - NET_ADMIN
         - NET_RAW
         - SYS_ADMIN
+      drop:
+        - ALL
 
   hostNetwork: true
 
