@@ -6,7 +6,7 @@ singleBinary:
   replicas: 1
   resources:
     limits:
-      cpu: 400
+      cpu: 400m
       memory: 256Mi
     requests:
       cpu: 200m
