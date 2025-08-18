@@ -18,13 +18,13 @@ prometheus:
   prometheusSpec:
     annotations:
       argocd.argoproj.io/skip-health-check: "true"
-    retention: 3d
+    retention: 1d
     resources:
       requests:
-        memory: 64Mi
+        memory: 128Mi
         cpu: 100m
       limits:
-        memory: 256Mi
+        memory: 512Mi
         cpu: 200m
     storageSpec:
       volumeClaimTemplate:
