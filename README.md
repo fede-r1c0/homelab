@@ -29,13 +29,13 @@ Funciona sobre una Raspberry Pi 5, pero en realidad podés usar cualquier equipo
 ### Stack de Tecnologías
 
 - **OS**: Ubuntu Server (ARM64) o cualquier Linux
-- **Kubernetes**: K3S (liviano, ideal para ARM o equipos chicos)
+- **Kubernetes**: k3s (liviano, ideal para ARM o equipos chicos)
 - **CNI**: Cilium
 - **Load Balancer**: MetalLB
 - **Certificados**: cert-manager
-- **Observabilidad**: Prometheus, Grafana, Loki, Tempo, Hubble
+- **Observabilidad**: Prometheus, Grafana, Alertmanager
 - **GitOps**: ArgoCD
-- **Seguridad**: OPA Gatekeeper, Cilium Network Policies, Sealed Secrets
+- **Seguridad**: Cilium Network Policies, Sealed Secrets
 - **Internal Developer Portal**: Backstage
 
 ## 📁 Estructura del Repo
@@ -50,7 +50,6 @@ homelab/
 ├── apps/                        # Configuraciones de aplicaciones (values.yaml)
 ├── scripts/                     # Scripts de automatización
 ├── docs/                        # Documentación técnica
-├── policies/                    # Políticas OPA para validación
 └── README.md                    # Este archivo
 ```
 
