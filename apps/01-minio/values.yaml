@@ -27,5 +27,10 @@ service:
 consoleService:
   type: LoadBalancer # Changed from ClusterIP to LoadBalancer
 
+# Environment variables to make MinIO listen on all interfaces
+environment:
+  MINIO_SERVER_URL: "http://0.0.0.0:9000"
+  MINIO_BROWSER_REDIRECT_URL: "http://0.0.0.0:9001"
+
 # Use existing secret (created by sealed-secrets)
 existingSecret: "minio-secret"
