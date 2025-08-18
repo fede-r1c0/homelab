@@ -1,8 +1,10 @@
 # kube-prometheus-stack Configuration for Raspberry Pi Single-Node Cluster
-installCRDs: true
+crds:
+  enabled: true
 
 # Prometheus optimization
 prometheus:
+  enabled: true
   prometheusSpec:
     resources:
       requests:
@@ -20,6 +22,7 @@ prometheus:
 
 # Grafana optimization
 grafana:
+  enabled: true
   resources:
     requests:
       memory: 64Mi
@@ -27,9 +30,16 @@ grafana:
     limits:
       memory: 128Mi
       cpu: 100m
+  service: # Changed from ClusterIP to LoadBalancer
+    type: LoadBalancer
+  admin: # Changed from adminUser/adminPassword to existingSecret
+    existingSecret: "grafana-secret"
+    userKey: "admin-user"
+    passwordKey: "admin-password"
 
 # AlertManager optimization
 alertmanager:
+  enabled: true
   alertmanagerSpec:
     resources:
       requests:
