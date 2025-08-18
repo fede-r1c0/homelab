@@ -6,11 +6,11 @@ singleBinary:
   replicas: 1
   resources:
     limits:
-      cpu: 400m
-      memory: 256Mi
-    requests:
       cpu: 200m
       memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 64Mi
   extraEnv:
     # Keep a little bit lower than memory limits
     - name: GOMEMLIMIT
