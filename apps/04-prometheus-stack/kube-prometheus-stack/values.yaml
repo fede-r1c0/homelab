@@ -1,4 +1,12 @@
 # kube-prometheus-stack Configuration for Raspberry Pi Single-Node Cluster
+
+defaultRules:
+  rules:
+    etcd: false
+
+kubeEtcd:
+  enabled: false
+
 crds:
   enabled: true
 
