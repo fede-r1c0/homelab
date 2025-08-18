@@ -1,4 +1,5 @@
 # kube-prometheus-stack Configuration for Raspberry Pi Single-Node Cluster
+installCRDs: true
 
 # Prometheus optimization
 prometheus:
