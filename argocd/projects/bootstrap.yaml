@@ -14,7 +14,7 @@ spec:
     - "https://bitnami-labs.github.io/sealed-secrets"
     - "https://metallb.github.io/metallb"
     - "https://charts.jetstack.io"
-    - "https://minio.github.io/minio"
+    - "https://charts.min.io/"
 
   # Destination clusters and namespaces
   destinations:
