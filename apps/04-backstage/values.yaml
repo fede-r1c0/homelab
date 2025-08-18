@@ -1,90 +1,53 @@
-# Backstage Configuration for Raspberry Pi Single-Node Cluster
-# Optimized for home lab environment
+global:
+  # -- Global Docker image registry
+  imageRegistry: ""
 
-# Application configuration
-app:
-  name: backstage
-  version: "1.0.0"
+  # -- Global Docker registry secret names as an array
+  # </br> E.g. `imagePullSecrets: [myRegistryKeySecretName]`
+  imagePullSecrets: []
 
-# Container configuration
-container:
-  image: backstage/backstage:latest
-  imagePullPolicy: IfNotPresent
+backstage:
+  # -- Number of deployment replicas
+  replicas: 1
 
-  # Resource limits optimized for Raspberry Pi
+  # -- Backstage container command
+  command: ["node", "packages/backend"]
+
+  # -- Resource requests/limits
   resources:
-    requests:
-      memory: 64Mi
-      cpu: 100m
     limits:
-      memory: 128Mi
+      memory: 256Mi
       cpu: 200m
+    requests:
+      memory: 128Mi
+      cpu: 100m
 
-  # Security context
-  securityContext:
-    runAsNonRoot: true
-    runAsUser: 1001
-    runAsGroup: 1001
-    fsGroup: 1001
-
-  # Environment variables
-  env:
-    - name: POSTGRES_HOST
-      value: "postgres"
-    - name: POSTGRES_PORT
-      value: "5432"
-    - name: POSTGRES_USER
-      value: "backstage"
-    - name: POSTGRES_PASSWORD
-      value: "backstage"
-    - name: POSTGRES_DB
-      value: "backstage"
-
-# Service configuration
 service:
   type: LoadBalancer
-  port: 7007
-  targetPort: 7007
 
-# Ingress configuration (disabled for single node)
-ingress:
-  enabled: false
-
-# Persistence configuration
-persistence:
+postgresql:
   enabled: true
-  size: 5Gi
-  storageClass: "local-path"
-  accessMode: ReadWriteOnce
+  # -- The authentication details of the Postgres database
+  auth:
+    # -- Name for a custom user to create
+    username: bn_backstage
 
-# RBAC configuration
-rbac:
-  create: true
-  rules:
-    - apiGroups: [""]
-      resources: ["secrets", "configmaps", "services", "pods"]
-      verbs: ["get", "list", "watch"]
-    - apiGroups: ["apps"]
-      resources: ["deployments", "statefulsets"]
-      verbs: ["get", "list", "watch"]
+    # -- Password for the custom user to create
+    password: ""
 
-# Service account configuration
-serviceAccount:
-  create: true
-  name: "backstage"
-  annotations: {}
+    # -- Name of existing secret to use for PostgreSQL credentials
+    existingSecret: "backstage-secret"
 
-# Pod annotations
-podAnnotations: {}
+    # -- The secret keys Postgres will look for to retrieve the relevant password
+    secretKeys:
+      # -- The key in which Postgres will look for, for the admin password, in the existing Secret
+      adminPasswordKey: admin-password
 
-# Pod labels
-podLabels: {}
+      # -- The key in which Postgres will look for, for the user password, in the existing Secret
+      userPasswordKey: user-password
 
-# Node selector
-nodeSelector: {}
+      # -- The key in which Postgres will look for, for the replication password, in the existing Secret
+      replicationPasswordKey: replication-password
 
-# Tolerations
-tolerations: []
-
-# Affinity
-affinity: {}
+  # -- PostgreSQL architecture (`standalone` or `replication`)
+  architecture: standalone

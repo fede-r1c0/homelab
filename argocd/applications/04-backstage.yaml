@@ -9,12 +9,12 @@ metadata:
 spec:
   project: applications
   source:
-    repoURL: https://github.com/fede-r1c0/homelab
-    targetRevision: HEAD
-    path: apps/04-backstage
+    repoURL: https://backstage.github.io/charts
+    chart: backstage
+    targetRevision: 2.6.0
     helm:
       valueFiles:
-        - values.yaml
+        - https://raw.githubusercontent.com/fede-r1c0/homelab/main/apps/04-backstage/values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: backstage
