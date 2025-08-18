@@ -17,7 +17,7 @@ prometheus:
     type: LoadBalancer
   prometheusSpec:
     annotations:
-    argocd.argoproj.io/skip-health-check: "true"
+      argocd.argoproj.io/skip-health-check: "true"
     retention: 3d
     resources:
       requests:
