@@ -14,6 +14,7 @@ Esta guía detalla la instalación y configuración de K3S (Kubernetes ligero) y
 ## 🛠️ **Prerrequisitos**
 
 ### **Sistema Base**
+
 - ✅ Raspberry Pi OS (Linux arm64)
 - ✅ 8GB RAM (mínimo 4GB)
 - ✅ 64GB+ Almacenamiento
@@ -21,6 +22,7 @@ Esta guía detalla la instalación y configuración de K3S (Kubernetes ligero) y
 - ✅ Acceso SSH configurado
 
 ### **Software Base**
+
 - ✅ Sistema actualizado
 - ✅ Herramientas de desarrollo instaladas
 - ✅ SSH configurado y funcionando
@@ -29,6 +31,7 @@ Esta guía detalla la instalación y configuración de K3S (Kubernetes ligero) y
 ## 🚀 **Instalación de k3s**
 
 ### **1. Preparación del Sistema**
+
 ```bash
 # Verificar cgroups habilitados
 cat /boot/firmware/cmdline.txt | grep cgroup
@@ -46,6 +49,7 @@ sudo apt install -y linux-modules-extra-raspi
 ### **2. Instalación de k3s**
 
 #### **⚠️ Importante: Deshabilitar Klipper para MetalLB**
+
 K3s viene con **Klipper** (su propio LoadBalancer), que entra en conflicto con **MetalLB**. Según la [documentación oficial de MetalLB](https://metallb.io/configuration/k3s/), debemos deshabilitar Klipper con `--disable servicelb`.
 
 ```bash
@@ -66,6 +70,7 @@ kubectl cluster-info
 ```
 
 ### **3. Configuración de K3S**
+
 ```bash
 # Verificar configuración
 cat ~/.kube/config
@@ -85,6 +90,7 @@ kubectl get pods --all-namespaces
 ## 🔧 **Instalación de Cilium CNI**
 
 ### **1. Preparación para Cilium**
+
 ```bash
 # Verificar que no hay CNI activo
 kubectl get pods -n kube-system | grep -E "(flannel|calico|weave)"
@@ -94,6 +100,7 @@ kubectl get nodes -o wide
 ```
 
 ### **2. Instalación de Helm**
+
 ```bash
 # Instalar Helm
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
@@ -107,6 +114,7 @@ helm repo update
 ```
 
 ### **3. Instalación de Cilium**
+
 ```bash
 # Instalar Cilium con configuración optimizada para Raspberry Pi
 helm install cilium cilium/cilium \
@@ -338,4 +346,4 @@ Para problemas específicos:
 
 ---
 
-**¡Tu cluster K3S con Cilium está listo para el siguiente paso: instalación de ArgoCD! 🚀**
+### El cluster está listo para el siguiente paso: instalación de ArgoCD 🚀

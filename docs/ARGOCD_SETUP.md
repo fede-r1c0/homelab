@@ -5,6 +5,7 @@ Esta guía te ayuda a configurar ArgoCD en tu cluster k3s para implementar un fl
 ## 🚀 Instalación de ArgoCD
 
 ### **Prerequisitos**
+
 - Cluster `k3s` funcionando con `Cilium` como CNI
 - `kubectl` configurado y conectado al cluster
 - `helm` instalado
@@ -50,7 +51,8 @@ kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath='{.data.pas
 ## 🏗️ Arquitectura del Repositorio
 
 ### **Estructura Implementada**
-```
+
+```bash
 homelab/
 ├── argocd/                      # Configuración de ArgoCD
 │   ├── projects/                # Proyectos con RBAC granular
@@ -72,19 +74,22 @@ homelab/
 ### **Cómo Funciona la Arquitectura**
 
 #### **🎯 Patrón "App of Apps"**
+
 - **`homelab-bootstrap`**: App principal que lee `argocd/applications/`
 - **Apps individuales**: Cada definición en `applications/` crea una app específica
 - **Helm charts oficiales**: Cada app usa su chart oficial + valores custom
 - **Sincronización automática**: Cambios en Git se aplican automáticamente
 
 #### **🔒 Proyectos para RBAC**
+
 - **bootstrap**: Apps críticas (Sealed Secrets, MetalLB, cert-manager)
 - **security**: Herramientas de seguridad (OPA Gatekeeper)
 - **monitoring**: Stack de observabilidad (Prometheus, Grafana, Loki)
 - **applications**: Apps de nivel usuario (Backstage)
 
 #### **📦 Sistema de Dependencias**
-```
+
+```text
 Sealed Secrets (00) → Base para secretos
      ↓
 MetalLB (01) → LoadBalancer para servicios
@@ -154,12 +159,14 @@ argocd app logs sealed-secrets --follow
 ## 🔧 Configuración Específica por Aplicación
 
 ### **Sealed Secrets (00-sealed-secrets)**
+
 ```yaml
 # Se instala automáticamente, no requiere configuración manual
 # Usa el chart oficial de Bitnami con recursos optimizados para Raspberry Pi
 ```
 
 ### **MetalLB (01-metallb)**
+
 **⚠️ Configuración Crítica:** MetalLB necesita un pool de IPs configurado.
 
 ```bash
@@ -175,6 +182,7 @@ kubectl get ipaddresspools -n metallb-system
 ```
 
 **Cambiar ArgoCD a LoadBalancer:**
+
 ```bash
 # Una vez que MetalLB esté configurado y funcionando
 kubectl patch svc argocd-server -n argocd -p '{"spec":{"type":"LoadBalancer"}}'
@@ -188,6 +196,7 @@ kubectl get svc argocd-server -n argocd -w
 ```
 
 ### **cert-manager (02-cert-manager)**
+
 ```bash
 # Verificar que los CRDs se instalaron correctamente
 kubectl get crd | grep cert-manager
@@ -197,6 +206,7 @@ kubectl get validatingwebhookconfigurations | grep cert-manager
 ```
 
 ### **Prometheus Stack (04-prometheus-stack)**
+
 **⚠️ Aplicación Pesada:** Requiere más recursos y tiempo de instalación.
 
 ```bash
@@ -212,6 +222,7 @@ kubectl get svc -n monitoring | grep grafana
 ```
 
 ### **OPA Gatekeeper (03-opa-gatekeeper)**
+
 ```bash
 # Verificar que los admission controllers están activos
 kubectl get validatingwebhookconfigurations | grep gatekeeper
@@ -223,6 +234,7 @@ kubectl get constrainttemplate
 ## 📊 Verificación del Estado General
 
 ### **Comandos Útiles**
+
 ```bash
 # Estado de todas las aplicaciones ArgoCD
 argocd app list
@@ -240,28 +252,31 @@ kubectl get svc --all-namespaces | grep LoadBalancer
 ### **Troubleshooting Común**
 
 1. **App en estado OutOfSync**
+
    ```bash
    # Forzar sincronización
    argocd app sync [APP-NAME] --force
-   
+
    # Ver logs detallados
    argocd app logs [APP-NAME]
    ```
 
 2. **MetalLB no asigna IPs**
+
    ```bash
    # Verificar configuración de pools
    kubectl get ipaddresspools -n metallb-system -o yaml
-   
+
    # Ver logs de MetalLB
    kubectl logs -n metallb-system -l app=metallb
    ```
 
 3. **Pods en Pending**
+
    ```bash
    # Verificar recursos del nodo
    kubectl describe node [NODE-NAME]
-   
+
    # Ver eventos del cluster
    kubectl get events --sort-by=.metadata.creationTimestamp
    ```
@@ -282,7 +297,7 @@ Para los que prefieren automatizar todo el proceso, hay un script disponible:
 Una vez que tengas todo funcionando:
 
 1. **Configurar alertas** en Prometheus
-2. **Agregar políticas** personalizadas en OPA Gatekeeper  
+2. **Agregar políticas** personalizadas en OPA Gatekeeper
 3. **Configurar Backstage** como developer portal
 4. **Implementar backup** con Velero
 5. **Experimentar** con más aplicaciones
@@ -293,5 +308,3 @@ Una vez que tengas todo funcionando:
 - [App of Apps Pattern](https://argo-cd.readthedocs.io/en/stable/operator-manual/cluster-bootstrapping/)
 - [MetalLB Configuration](https://metallb.universe.tf/configuration/)
 - [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets)
-
-

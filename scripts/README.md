@@ -7,14 +7,17 @@ Este directorio contiene scripts de automatización para configurar y gestionar 
 ## 🎯 **Scripts Disponibles**
 
 ### **1. `bootstrap-argocd.sh` - Bootstrap Principal**
+
 **Propósito**: Configuración automática completa de ArgoCD
-**Uso**: 
+**Uso**:
+
 ```bash
 chmod +x scripts/bootstrap-argocd.sh
 ./scripts/bootstrap-argocd.sh
 ```
 
 **Funcionalidades**:
+
 - ✅ Verificación de pre-requisitos
 - ✅ Verificación del estado de ArgoCD
 - ✅ Agregar repositorio automáticamente
@@ -23,14 +26,17 @@ chmod +x scripts/bootstrap-argocd.sh
 - ✅ Verificación del estado final
 
 ### **2. `quick-check.sh` - Verificación Rápida**
+
 **Propósito**: Verificación rápida del estado del cluster
 **Uso**:
+
 ```bash
 chmod +x scripts/quick-check.sh
 ./scripts/quick-check.sh
 ```
 
 **Funcionalidades**:
+
 - ✅ Estado del cluster
 - ✅ Estado de los nodos
 - ✅ Estado de ArgoCD
@@ -39,8 +45,10 @@ chmod +x scripts/quick-check.sh
 - ✅ Recursos del sistema
 
 ### **3. `config.env` - Archivo de Configuración**
+
 **Propósito**: Configuración centralizada para todos los scripts
 **Variables principales**:
+
 - `REPO_URL`: URL del repositorio GitHub
 - `ARGOCD_NAMESPACE`: Namespace de ArgoCD
 - `BOOTSTRAP_APP_NAME`: Nombre de la aplicación bootstrap
@@ -50,6 +58,7 @@ chmod +x scripts/quick-check.sh
 ## 🚀 **Flujo de Trabajo Recomendado**
 
 ### **Setup Inicial**
+
 ```bash
 # 1. Bootstrap automático
 ./scripts/bootstrap-argocd.sh
@@ -59,6 +68,7 @@ chmod +x scripts/quick-check.sh
 ```
 
 ### **Uso Diario**
+
 ```bash
 # Verificar estado rápidamente
 ./scripts/quick-check.sh
@@ -68,6 +78,7 @@ kubectl logs -n argocd -l app.kubernetes.io/name=argocd-server
 ```
 
 ### **Mantenimiento**
+
 ```bash
 # Verificar aplicaciones
 kubectl get applications -n argocd
@@ -79,12 +90,15 @@ argocd app sync homelab-bootstrap
 ## 🔧 **Personalización**
 
 ### **Modificar Configuración**
+
 Edita `config.env` para cambiar:
+
 - URLs de repositorios
 - Timeouts
 - Comportamiento de los scripts
 
 ### **Agregar Nuevos Scripts**
+
 1. Crear script en este directorio
 2. Agregar documentación aquí
 3. Actualizar este README
@@ -94,22 +108,26 @@ Edita `config.env` para cambiar:
 ### **Problemas Comunes**
 
 1. **Script no ejecutable**
+
    ```bash
    chmod +x scripts/*.sh
    ```
 
 2. **Permisos de kubectl**
+
    ```bash
    kubectl auth can-i get pods --all-namespaces
    ```
 
 3. **ArgoCD no accesible**
+
    ```bash
    kubectl get pods -n argocd
    kubectl logs -n argocd -l app.kubernetes.io/name=argocd-server
    ```
 
 ### **Logs de Diagnóstico**
+
 ```bash
 # Logs de ArgoCD
 kubectl logs -n argocd -l app.kubernetes.io/name=argocd-server -f
@@ -127,6 +145,7 @@ kubectl logs -n argocd -l app.kubernetes.io/name=argocd-application-controller
 ## 🤝 **Contribución**
 
 Para mejorar los scripts:
+
 1. Mantener compatibilidad con bash
 2. Agregar manejo de errores robusto
 3. Documentar nuevas funcionalidades

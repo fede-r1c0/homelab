@@ -6,35 +6,38 @@ Este documento proporciona las directrices para contribuir al proyecto. Por favo
 
 ## 📋 Tabla de Contenidos
 
-- [¿Cómo Puedo Contribuir?](#cómo-puedo-contribuir)
-- [Configuración del Entorno](#configuración-del-entorno)
-- [Proceso de Contribución](#proceso-de-contribución)
-- [Estándares de Código](#estándares-de-código)
+- [¿Cómo Puedo Contribuir?] (#cómo-puedo-contribuir)
+- [Configuración del Entorno] (#configuración-del-entorno)
+- [Proceso de Contribución] (#proceso-de-contribución)
+- [Estándares de Código] (#estándares-de-código)
 - [Reportar Bugs](#reportar-bugs)
 - [Solicitar Features](#solicitar-features)
-- [Preguntas y Discusiones](#preguntas-y-discusiones)
-- [Licencia](#licencia)
-
+- [Preguntas y Discusiones] (#preguntas-y-discusiones)
+- [Licencia] (#licencia)
 
 ## 🎯 ¿Cómo Puedo Contribuir?
 
 ### Reportar Bugs
+
 - Incluye pasos para reproducir el problema
 - Adjunta logs y configuraciones relevantes
 - Especifica tu entorno (OS, versión de Kubernetes, etc.)
 
 ### Solicitar Features
+
 - Describe el caso de uso y beneficio
 - Incluye ejemplos de implementación si es posible
 - Considera si la feature se alinea con los objetivos del proyecto
 
 ### Mejorar Documentación
+
 - Corrige errores o ambigüedades
 - Agrega ejemplos y casos de uso
 - Traduce documentación a otros idiomas
 - Mejora la estructura y navegación
 
 ### Contribuir Código
+
 - Implementa features solicitadas
 - Corrige bugs reportados
 - Mejora la calidad del código existente
@@ -43,6 +46,7 @@ Este documento proporciona las directrices para contribuir al proyecto. Por favo
 ## 🛠️ Configuración del Entorno
 
 ### Prerrequisitos
+
 - Kubernetes cluster (k3s recomendado)
 - ArgoCD instalado y configurado
 - Helm 3.x
@@ -50,6 +54,7 @@ Este documento proporciona las directrices para contribuir al proyecto. Por favo
 - Git
 
 ### Setup Local
+
 ```bash
 # 1. Fork del repositorio
 git clone https://github.com/TU_USUARIO/homelab.git
@@ -63,6 +68,7 @@ git checkout -b feature/nombre-de-tu-feature
 ```
 
 ### Validación Local
+
 ```bash
 # Validar manifiestos Kubernetes
 ./scripts/quick-check.sh
@@ -119,9 +125,10 @@ git push origin feature/nombre-de-tu-feature
 ## 📝 Estándares de Código
 
 ### Estructura de Commits
+
 Seguimos [Conventional Commits](https://www.conventionalcommits.org/):
 
-```
+```bash
 <type>[optional scope]: <description>
 
 [optional body]
@@ -130,6 +137,7 @@ Seguimos [Conventional Commits](https://www.conventionalcommits.org/):
 ```
 
 **Tipos:**
+
 - `feat`: Nueva feature
 - `fix`: Corrección de bug
 - `docs`: Cambios en documentación
@@ -139,6 +147,7 @@ Seguimos [Conventional Commits](https://www.conventionalcommits.org/):
 - `chore`: Cambios en build, config, etc.
 
 ### Estándares de Kubernetes
+
 - **Usar** namespaces apropiados
 - **Aplicar** labels estándar (`app`, `version`, `environment`)
 - **Configurar** resource limits y requests
@@ -146,12 +155,14 @@ Seguimos [Conventional Commits](https://www.conventionalcommits.org/):
 - **Seguir** principios de least privilege
 
 ### Estándares de ArgoCD
+
 - **Usar** syncPolicy.automated cuando sea apropiado
 - **Configurar** retry policies para apps críticas
 - **Implementar** health checks personalizados
 - **Documentar** dependencias entre aplicaciones
 
 ### Estándares de Helm
+
 - **Usar** versiones específicas de charts
 - **Validar** values.yaml con helm lint
 - **Documentar** parámetros personalizados
@@ -160,6 +171,7 @@ Seguimos [Conventional Commits](https://www.conventionalcommits.org/):
 ## 🐛 Reportar Bugs
 
 ### Template de Issue
+
 ```markdown
 ## Descripción del Bug
 Descripción clara y concisa del problema.
@@ -192,6 +204,7 @@ Cualquier otra información que pueda ser útil.
 ## 🚀 Solicitar Features
 
 ### Template de Feature Request
+
 ```markdown
 ## Resumen
 Descripción clara y concisa de la feature solicitada.
@@ -217,11 +230,13 @@ Lista de criterios que deben cumplirse para aceptar la feature.
 ## 💬 Preguntas y Discusiones
 
 ### Para Preguntas Generales
+
 - **Issues**: Para preguntas específicas sobre funcionalidad
 - **Discussions**: Para debates sobre arquitectura y diseño
 - **Wiki**: Para documentación colaborativa
 
 ### Para Discusiones Técnicas
+
 - **Crear issue** con etiqueta `discussion`
 - **Usar Discussions** para temas complejos
 - **Mantener** conversaciones enfocadas y constructivas
@@ -229,12 +244,14 @@ Lista de criterios que deben cumplirse para aceptar la feature.
 ## 📚 Recursos Adicionales
 
 ### Documentación
+
 - [ArgoCD Documentation](https://argo-cd.readthedocs.io/)
 - [Kubernetes Best Practices](https://kubernetes.io/docs/concepts/configuration/)
 - [Helm Documentation](https://helm.sh/docs/)
 - [OPA Gatekeeper](https://open-policy-agent.github.io/gatekeeper/)
 
 ### Herramientas de Desarrollo
+
 - [kubectl](https://kubernetes.io/docs/reference/kubectl/)
 - [helm](https://helm.sh/docs/helm/)
 - [conftest](https://www.conftest.dev/)
@@ -245,14 +262,15 @@ Lista de criterios que deben cumplirse para aceptar la feature.
 Al contribuir a este proyecto, aceptas que tu contribución será licenciada bajo los mismos términos que el proyecto: **Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International Public License**.
 
 ### ¿Qué Significa Esto?
+
 - **Tu contribución** será accesible para la comunidad
 - **Otros podrán** usar y modificar tu trabajo
 - **Se mantiene** la protección contra uso comercial
 - **El espíritu Open Source** se preserva
 
-## 🎉 ¡Gracias!
+## 🎉 ¡Gracias
 
-Cada contribución, por pequeña que sea, ayuda a hacer este proyecto mejor para toda la comunidad. 
+Cada contribución, por pequeña que sea, ayuda a hacer este proyecto mejor para toda la comunidad.
 
 ---
 

@@ -12,9 +12,9 @@ assignees: ["fede-r1c0"]
 
 ## 🔍 Pasos para Reproducir
 
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 ## ✅ Comportamiento Esperado
 

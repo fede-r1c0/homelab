@@ -67,7 +67,7 @@ homelab/
 
 ### Setup Inicial
 
-**Opción 1: Script Automático (Recomendado)**
+#### Opción 1: Script Automático (Recomendado)
 
 ```bash
 # Hacer ejecutable y ejecutar
@@ -75,7 +75,7 @@ chmod +x scripts/bootstrap-argocd.sh
 ./scripts/bootstrap-argocd.sh
 ```
 
-**Opción 2: Manual via UI de ArgoCD**
+#### Opción 2: Manual via UI de ArgoCD
 
 1. Agregar repo `https://github.com/fede-r1c0/homelab` en ArgoCD
 2. Crear app `homelab-bootstrap` apuntando a `argocd/`
@@ -92,12 +92,14 @@ chmod +x scripts/bootstrap-argocd.sh
 
 ### Comandos Útiles
 
-**Verificar estado rápidamente:**
+#### Verificar estado rápidamente:
+
 ```bash
 ./scripts/quick-check.sh
 ```
 
 **Comandos básicos:**
+
 ```bash
 # Ver apps de ArgoCD
 kubectl get applications -n argocd
@@ -108,6 +110,38 @@ kubectl get pods -n argocd
 # Logs de ArgoCD
 kubectl logs -n argocd -l app.kubernetes.io/name=argocd-server
 ```
+
+## 🔍 Validación y CI/CD
+
+### Quick Start
+
+```bash
+# Instalar herramientas de validación
+make install-hooks
+
+# Validar cambios antes de commit
+make validate
+
+# Ver todos los comandos disponibles
+make help
+```
+
+### Características
+
+- **Pre-commit hooks**: Validación automática al hacer commit
+- **GitHub Actions**: CI/CD pipeline eficiente (~90 segundos)
+- **Validación inteligente**: Solo archivos cambiados
+- **Seguridad**: Escaneo con Trivy en rama main
+- **Performance**: Jobs paralelos y cache optimizado
+
+### Herramientas
+
+- `yamllint` - Validación de sintaxis YAML
+- `helm` - Validación de templates (opcional)
+- `kubeconform` - Validación de schemas K8s (opcional)
+- `trivy` - Escaneo de seguridad
+
+Ver [Guía de Validación](scripts/README-VALIDATION.md) para configuración completa.
 
 ## 📚 Documentación Detallada
 
@@ -121,11 +155,13 @@ Ya que este README es solo una vista general, la documentación completa está e
 ## 🔧 Personalización
 
 ### Agregar Nuevas Apps
+
 1. Crear directorio en `apps/` con tu `values.yaml`
 2. Crear app en `argocd/applications/`
 3. Commit y push → ArgoCD la detecta automáticamente
 
 ### Modificar Configuración
+
 - **Apps**: Edita `values.yaml` en `apps/`
 - **ArgoCD**: Modifica archivos en `argocd/`
 - **Scripts**: Personaliza `scripts/config.env`
@@ -133,18 +169,21 @@ Ya que este README es solo una vista general, la documentación completa está e
 ## 🚨 Troubleshooting Rápido
 
 **App en OutOfSync:**
+
 ```bash
 kubectl get applications -n argocd
 kubectl logs -n argocd -l app.kubernetes.io/name=argocd-server
 ```
 
 **Pods no arrancan:**
+
 ```bash
 kubectl describe pod <nombre-del-pod> -n <namespace>
 kubectl get events --sort-by=.metadata.creationTimestamp
 ```
 
 **ArgoCD no responde:**
+
 ```bash
 kubectl get pods -n argocd
 kubectl logs -n argocd -l app.kubernetes.io/name=argocd-server -f
@@ -156,10 +195,10 @@ Una vez que todo esté funcionando:
 
 | Servicio | URL | Credenciales |
 |----------|-----|--------------|
-| ArgoCD | http://cluster-ip | admin / [ver secret] |
-| Grafana | http://cluster-ip | admin / prom-operator |
-| Prometheus | http://cluster-ip:9090 | - |
-| Backstage | http://cluster-ip:7007 | - |
+| ArgoCD | <http://cluster-ip> | admin / [ver secret] |
+| Grafana | <http://cluster-ip> | admin / prom-operator |
+| Prometheus | <http://cluster-ip:9090> | - |
+| Backstage | <http://cluster-ip:7007> | - |
 
 ## 🎯 Próximos Pasos
 
@@ -170,9 +209,8 @@ Una vez que todo esté funcionando:
 
 ## 📜 Licencia
 
-[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
+[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 **Este proyecto está bajo la licencia Creative Commons BY-NC-SA 4.0.**
-
 
 ### ✅ **¿Qué Puedes Hacer?**
 
@@ -197,13 +235,12 @@ Una vez que todo esté funcionando:
 - **Licenciar trabajos derivados** bajo los mismos términos (BY-NC-SA 4.0)
 - **Indicar si hiciste modificaciones**
 
-
 ## 🤝 Contribuir
 
 **¡Este proyecto fomenta activamente las contribuciones!** 🚀
 
 - **✅ Modificaciones permitidas** - Podés mejorar y adaptar el código
-- **✅ Derivados fomentados** - Creá tu propia versión del proyecto  
+- **✅ Derivados fomentados** - Creá tu propia versión del proyecto
 - **✅ Colaboración abierta** - Contribuí mejoras al proyecto original
 
 **Guía completa:** [CONTRIBUTING.md](CONTRIBUTING.md) | **Fork y contribuye:** [GitHub](https://github.com/fede-r1c0/homelab)

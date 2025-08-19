@@ -14,6 +14,7 @@ Esta guía detalla la configuración completa de una Raspberry Pi 5 para funcion
 ## 🛠️ **Hardware Requerido**
 
 ### **Raspberry Pi 5 (Recomendado)**
+
 - **RAM**: 8GB (mínimo 4GB)
 - **CPU**: ARM64 2.4GHz quad-core
 - **Almacenamiento**: MicroSD 32GB+ clase 10 (recomendado 64GB+)
@@ -21,6 +22,7 @@ Esta guía detalla la configuración completa de una Raspberry Pi 5 para funcion
 - **Enfriamiento**: Case con ventilador activo
 
 ### **Accesorios Adicionales**
+
 - **Fuente de alimentación**: 5V/3A USB-C PD
 - **Case**: Con ventilador y disipador de calor
 - **MicroSD**: Clase 10, UHS-I, A1/A2 rating
@@ -30,6 +32,7 @@ Esta guía detalla la configuración completa de una Raspberry Pi 5 para funcion
 ## 🚀 **Preparación del Sistema Base**
 
 ### **1. Descarga de Ubuntu Server 25.04**
+
 ```bash
 # Descargar Ubuntu Server 25.04 para Raspberry Pi
 wget https://cdimage.ubuntu.com/releases/25.04/release/ubuntu-25.04-preinstalled-server-arm64+raspi.img.xz
@@ -39,6 +42,7 @@ sha256sum ubuntu-25.04-preinstalled-server-arm64+raspi.img.xz
 ```
 
 ### **2. Flash de la MicroSD**
+
 ```bash
 # Descomprimir imagen
 xz -d ubuntu-25.04-preinstalled-server-arm64+raspi.img.xz
@@ -51,6 +55,7 @@ sudo dd if=ubuntu-25.04-preinstalled-server-arm64+raspi.img of=/dev/sdX bs=4M st
 ```
 
 ### **3. Configuración Inicial**
+
 ```bash
 # Montar la microSD
 sudo mount /dev/sdX2 /mnt
@@ -68,6 +73,7 @@ sudo umount /mnt
 ## 🔧 **Primer Boot y Configuración**
 
 ### **1. Conexión Inicial**
+
 ```bash
 # Conectar Raspberry Pi a la red
 # Usar monitor y teclado para la primera configuración
@@ -77,6 +83,7 @@ sudo umount /mnt
 ```
 
 ### **2. Configuración de Red**
+
 ```bash
 # Verificar conectividad
 ip addr show
@@ -87,6 +94,7 @@ sudo nano /etc/netplan/50-cloud-init.yaml
 ```
 
 ### **3. Actualización del Sistema**
+
 ```bash
 # Actualizar paquetes del sistema
 sudo apt update && sudo apt upgrade -y
@@ -112,6 +120,7 @@ sudo apt install -y \
 ## 🔐 **Configuración SSH y Seguridad**
 
 ### **1. Configuración SSH**
+
 ```bash
 # Habilitar SSH
 sudo systemctl enable ssh
@@ -127,6 +136,7 @@ sudo ufw enable
 ```
 
 ### **2. Generación de Claves SSH**
+
 ```bash
 # Generar clave SSH para GitHub
 ssh-keygen -t ed25519 -C "xxxx@xxxx"
@@ -138,6 +148,7 @@ cat ~/.ssh/id_ed25519.pub
 ```
 
 ### **3. Configuración SSH Avanzada**
+
 ```bash
 # Configurar SSH para mayor seguridad
 sudo vi /etc/ssh/sshd_config
@@ -183,6 +194,7 @@ sudo apt install -y zsh \
 Más herramientas como docker, kubernetes, fnm, pyenv, etc. se pueden instalar siguiendo la siguiente docuemntacion de mis dotfiles: [https://github.com/fede-r1c0/dotfiles/blob/main/zsh/README.md#raspberry-pi-os](https://github.com/fede-r1c0/dotfiles/blob/main/zsh/README.md#raspberry-pi-os)
 
 ### **2. Configuración de Git**
+
 ```bash
 # Configurar Git global
 git config --global user.name "user"
@@ -200,11 +212,10 @@ git config --global alias.ci commit
 
 ### **3. Configuración de Shell y Entorno**
 
-**Recomendación: Usa tu repositorio de dotfiles con GNU Stow**
+**Recomendación:** Usa tu repositorio de dotfiles con GNU Stow
 
-Si ya tienes configuraciones personalizadas para zsh, vim, etc. en tu repositorio de dotfiles, puedes clonarlo y aplicar la configuración fácilmente usando GNU Stow.  
+Si ya tienes configuraciones personalizadas para zsh, vim, etc. en tu repositorio de dotfiles, puedes clonarlo y aplicar la configuración fácilmente usando GNU Stow.
 Si no, puedes usar el mío como referencia para crear el tuyo. [https://github.com/fede-r1c0/dotfiles/blob/main/zsh/README.md#raspberry-pi-os](https://github.com/fede-r1c0/dotfiles/blob/main/zsh/README.md#raspberry-pi-os)
-
 
 ```bash
 # 1. Instala GNU Stow si no lo tienes:
@@ -225,7 +236,7 @@ stow zsh
 
 Esto es más reproducible y portable que configurar todo desde cero.
 
-👉 **Alternativa: Instalar y configurar Oh My Zsh manualmente** 
+👉 **Alternativa: Instalar y configurar Oh My Zsh manualmente**
 
 Si prefieres no usar dotfiles, puedes seguir los pasos de instalación de Oh My Zsh y plugins como se describe abajo.
 
@@ -333,6 +344,7 @@ node --version
 ```
 
 ### **2. Test de Rendimiento**
+
 ```bash
 # Test de CPU
 sysbench cpu --cpu-max-prime=20000 run
@@ -389,6 +401,7 @@ vcgencmd measure_temp
 ## 🔄 **Mantenimiento del Sistema**
 
 ### **1. Actualizaciones Regulares**
+
 ```bash
 # Actualización semanal
 sudo apt update && sudo apt upgrade -y
@@ -399,6 +412,7 @@ sudo apt autoclean
 ```
 
 ### **2. Backup de Configuración**
+
 ```bash
 # Backup de archivos de configuración
 tar -czf ~/system-config-backup-$(date +%Y%m%d).tar.gz \
@@ -410,6 +424,7 @@ tar -czf ~/system-config-backup-$(date +%Y%m%d).tar.gz \
 ```
 
 ### **3. Monitoreo de Salud**
+
 ```bash
 # Verificar espacio en disco
 df -h
@@ -441,4 +456,4 @@ Para problemas específicos:
 
 ---
 
-**¡Tu Raspberry Pi 5 está listo para el siguiente paso: instalación de K3S! 🚀**
+### Tu Raspberry Pi está listo para el siguiente paso: instalación de k3s! 🚀
