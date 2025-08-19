@@ -16,11 +16,21 @@ backstage:
   # -- Resource requests/limits
   resources:
     limits:
+      memory: 512Mi
+      cpu: 500m
+    requests:
       memory: 256Mi
       cpu: 200m
-    requests:
-      memory: 128Mi
-      cpu: 100m
+
+  livenessProbe:
+    timeoutSeconds: 5
+    failureThreshold: 5
+  readinessProbe:
+    timeoutSeconds: 5
+    failureThreshold: 5
+  startupProbe:
+    timeoutSeconds: 5
+    failureThreshold: 10
 
 service:
   type: LoadBalancer
