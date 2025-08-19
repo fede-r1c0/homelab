@@ -6,14 +6,14 @@ Este directorio contiene scripts de automatización para configurar y gestionar 
 
 ## 🎯 **Scripts Disponibles**
 
-### **1. `bootstrap-argocd.sh` - Bootstrap Principal**
+### **1. `simple-bootstrap.sh` - Bootstrap Principal**
 
 **Propósito**: Configuración automática completa de ArgoCD
 **Uso**:
 
 ```bash
-chmod +x scripts/bootstrap-argocd.sh
-./scripts/bootstrap-argocd.sh
+chmod +x scripts/simple-bootstrap.sh
+./scripts/simple-bootstrap.sh
 ```
 
 **Funcionalidades**:
