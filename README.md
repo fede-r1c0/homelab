@@ -92,7 +92,7 @@ chmod +x scripts/bootstrap-argocd.sh
 
 ### Comandos Útiles
 
-#### Verificar estado rápidamente:
+#### Verificar estado rápidamente
 
 ```bash
 ./scripts/quick-check.sh
