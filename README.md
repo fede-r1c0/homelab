@@ -71,8 +71,8 @@ homelab/
 
 ```bash
 # Hacer ejecutable y ejecutar
-chmod +x scripts/bootstrap-argocd.sh
-./scripts/bootstrap-argocd.sh
+chmod +x scripts/simple-bootstrap.sh
+./scripts/simple-bootstrap.sh
 ```
 
 #### Opción 2: Manual via UI de ArgoCD
@@ -111,37 +111,6 @@ kubectl get pods -n argocd
 kubectl logs -n argocd -l app.kubernetes.io/name=argocd-server
 ```
 
-## 🔍 Validación y CI/CD
-
-### Quick Start
-
-```bash
-# Instalar herramientas de validación
-make install-hooks
-
-# Validar cambios antes de commit
-make validate
-
-# Ver todos los comandos disponibles
-make help
-```
-
-### Características
-
-- **Pre-commit hooks**: Validación automática al hacer commit
-- **GitHub Actions**: CI/CD pipeline eficiente (~90 segundos)
-- **Validación inteligente**: Solo archivos cambiados
-- **Seguridad**: Escaneo con Trivy en rama main
-- **Performance**: Jobs paralelos y cache optimizado
-
-### Herramientas
-
-- `yamllint` - Validación de sintaxis YAML
-- `helm` - Validación de templates (opcional)
-- `kubeconform` - Validación de schemas K8s (opcional)
-- `trivy` - Escaneo de seguridad
-
-Ver [Guía de Validación](scripts/README-VALIDATION.md) para configuración completa.
 
 ## 📚 Documentación Detallada
 
@@ -149,7 +118,6 @@ Ya que este README es solo una vista general, la documentación completa está e
 
 - **[Raspberry Pi Setup](docs/RASPBERRYPI_SETUP.md)** - Configurar tu Pi u otro Linux con arm64
 - **[k3s Setup](docs/K3S_CILIUM_SETUP.md)** - Instalar el cluster Kubernetes
-- **[Cilium Setup](docs/K3S_CILIUM_SETUP.md)** - Instalar el cluster Kubernetes
 - **[ArgoCD Setup](docs/ARGOCD_SETUP.md)** - Configurar GitOps y el patrón App of Apps
 
 ## 🔧 Personalización
@@ -247,10 +215,9 @@ Una vez que todo esté funcionando:
 
 ## 📚 Recursos
 
-- [ArgoCD Docs](https://argo-cd.readthedocs.io/)
 - [k3s Docs](https://docs.k3s.io/)
 - [Cilium Docs](https://docs.cilium.io/)
-- [OPA Gatekeeper](https://open-policy-agent.github.io/gatekeeper/)
+- [ArgoCD Docs](https://argo-cd.readthedocs.io/)
 
 ---
 
