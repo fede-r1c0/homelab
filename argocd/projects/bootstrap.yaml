@@ -11,6 +11,7 @@ spec:
   # Source repositories
   sourceRepos:
     - "https://github.com/fede-r1c0/homelab"
+    - "https://argoproj.github.io/argo-helm"
     - "https://metallb.github.io/metallb"
     - "https://charts.jetstack.io"
 
