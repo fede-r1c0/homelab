@@ -145,7 +145,7 @@ helm install cilium cilium/cilium \
   --set hubble.enabled=true \
   --set hubble.relay.enabled=true \
   --set hubble.ui.enabled=true \
-  --set hubble.ui.service.type=ClusterIP \
+  --set hubble.ui.service.type=LoadBalancer \
   --set prometheus.enabled=true \
   --set operator.prometheus.enabled=true
 
