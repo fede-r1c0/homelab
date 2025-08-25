@@ -2,8 +2,12 @@
 global:
   domain: argocd.feder1c0.tech
 
+dex:
+  enabled: false
 notifications:
   enabled: false
+applicationSet:
+  replicas: 0
 
 configs:
   params:
