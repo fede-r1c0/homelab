@@ -13,7 +13,7 @@ applications:
       argocd.argoproj.io/sync-wave: "0"
     finalizers:
       - resources-finalizer.argocd.argoproj.io
-    project: default
+    project: bootstrap
     source:
       repoURL: https://github.com/fede-r1c0/homelab
       targetRevision: HEAD
