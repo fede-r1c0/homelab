@@ -22,4 +22,4 @@ configs:
 
 server:
   service:
-    type: ClusterIP
+    type: LoadBalancer

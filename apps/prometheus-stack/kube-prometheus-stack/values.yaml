@@ -14,7 +14,7 @@ crds:
 prometheus:
   enabled: true
   service: # Changed from ClusterIP to LoadBalancer
-    type: ClusterIP
+    type: LoadBalancer
   prometheusSpec:
     annotations:
       argocd.argoproj.io/skip-health-check: "true"
@@ -53,7 +53,7 @@ grafana:
       memory: 512Mi
       cpu: 200m
   service: # Changed from ClusterIP to LoadBalancer
-    type: ClusterIP
+    type: LoadBalancer
   admin: # Changed from adminUser/adminPassword to existingSecret
     existingSecret: "grafana-secret"
     userKey: "admin-user"
@@ -63,7 +63,7 @@ grafana:
 alertmanager:
   enabled: true
   service: # Changed from ClusterIP to LoadBalancer
-    type: ClusterIP
+    type: LoadBalancer
   alertmanagerSpec:
     resources:
       requests:
