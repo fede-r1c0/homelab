@@ -47,6 +47,8 @@ spec:
     - group: "apps"
       kind: Deployment
     - group: "apps"
+      kind: DaemonSet
+    - group: "apps"
       kind: StatefulSet
     - group: "rbac.authorization.k8s.io"
       kind: Role
