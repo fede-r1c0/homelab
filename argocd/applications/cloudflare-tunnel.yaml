@@ -16,13 +16,17 @@ spec:
   sources:
     - repoURL: https://charts.community.cloudflare.com
       chart: cloudflared
-      targetRevision: 0.1.0
+      targetRevision: 2.1.2
       helm:
         valueFiles:
           - $values/apps/cloudflare-tunnel/values.yaml
+
     - repoURL: https://github.com/fede-r1c0/homelab
       targetRevision: HEAD
       ref: values
+      path: apps/cloudflare-tunnel
+      directory:
+        include: "cloudflare-tunnel-sealedsecret.yaml"
 
   destination:
     server: https://kubernetes.default.svc
