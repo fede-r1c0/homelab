@@ -16,11 +16,11 @@ backstage:
   # -- Resource requests/limits
   resources:
     limits:
-      memory: 1Gi
-      cpu: 500m
-    requests:
       memory: 256Mi
       cpu: 200m
+    requests:
+      memory: 64Mi
+      cpu: 100m
 
   livenessProbe:
     timeoutSeconds: 5
