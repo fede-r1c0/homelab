@@ -28,7 +28,6 @@ applications:
         prune: true
         selfHeal: true
       syncOptions:
-        - CreateNamespace=true
         - PrunePropagationPolicy=foreground
     revisionHistoryLimit: 10
 #    ignoreDifferences:
