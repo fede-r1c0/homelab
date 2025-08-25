@@ -10,6 +10,10 @@ replica:
 
 # -- This is for setting up the cloudflared tunnel secrets. For more information checkout: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/do-more-with-tunnels/local-management/create-local-tunnel/
 tunnelSecrets:
+  # -- Base64 encoded config file from ~/.cloudflared/*.json
+  # Run: base64 -b 0 -i ~/.cloudflared/*.json
+  base64EncodedConfigJsonFile: ""
+
   # -- This is for setting up the existing secret for the cloudflared tunnel certificate PEM file. If not set, the base64EncodedPemFile will be used.
   existingPemFileSecret:
     name: "cloudflare-tunnel-secret"
