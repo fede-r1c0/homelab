@@ -1,29 +1,31 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: prometheus-stack
+  name: metallb
   namespace: argocd
   labels:
-    project: monitoring
-    phase: "03"
+    project: bootstrap
+    phase: "2"
 spec:
-  project: monitoring
+  project: bootstrap
   sources:
-    - repoURL: https://prometheus-community.github.io/helm-charts
-      chart: kube-prometheus-stack
-      targetRevision: 76.4.0
+    - repoURL: https://metallb.github.io/metallb
+      chart: metallb
+      targetRevision: 0.15.2
       helm:
         valueFiles:
-          - $values/apps/03-prometheus-stack/kube-prometheus-stack/values.yaml
+          - $values/apps/metallb/values.yaml
     - repoURL: https://github.com/fede-r1c0/homelab
       targetRevision: HEAD
       ref: values
-      path: apps/03-prometheus-stack/kube-prometheus-stack
+    - repoURL: https://github.com/fede-r1c0/homelab
+      targetRevision: HEAD
+      path: apps/metallb
       directory:
-        include: "grafana-sealedsecret.yaml"
+        include: "metallb-config.yaml"
   destination:
     server: https://kubernetes.default.svc
-    namespace: monitoring
+    namespace: metallb-system
   syncPolicy:
     automated:
       prune: true
@@ -31,7 +33,6 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - PrunePropagationPolicy=foreground
-      - ServerSideApply=true
     retry:
       limit: 2
       backoff:

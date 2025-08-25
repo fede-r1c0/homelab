@@ -1,0 +1,74 @@
+# Cloudflare Tunnel para K3s
+# Chart oficial: https://artifacthub.io/packages/helm/community-charts/cloudflared
+
+# Configuración del tunnel
+tunnel:
+  # ID del tunnel (obligatorio - reemplazar con tu ID real)
+  id: "YOUR_TUNNEL_ID"
+
+  # Nombre del tunnel
+  name: "homelab-k3s"
+
+  # Credenciales (se crearán automáticamente)
+  credentials:
+    secretName: "cloudflared-credentials"
+    secretKey: "credentials.json"
+
+# Configuración de ingreso
+ingress:
+  # ArgoCD
+  - hostname: "argocd.yourdomain.com"
+    service: "http://argocd-server.argocd.svc.cluster.local:80"
+
+  # Grafana
+  - hostname: "grafana.yourdomain.com"
+    service: "http://prometheus-stack-grafana.monitoring.svc.cluster.local:80"
+
+  # Backstage
+  - hostname: "backstage.yourdomain.com"
+    service: "http://backstage.backstage.svc.cluster.local:7007"
+
+  # Prometheus
+  - hostname: "prometheus.yourdomain.com"
+    service: "http://prometheus-stack-prometheus.monitoring.svc.cluster.local:9090"
+
+  # Catch-all rule
+  - service: "http_status:404"
+
+# Configuración del deployment
+deployment:
+  replicas: 1
+
+  # Recursos para Raspberry Pi
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "50m"
+    limits:
+      memory: "128Mi"
+      cpu: "100m"
+
+  # Configuración específica para ARM64
+  nodeSelector:
+    kubernetes.io/arch: "arm64"
+
+  # Configuración de seguridad
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    runAsGroup: 1001
+    fsGroup: 1001
+
+# Configuración del servicio
+service:
+  type: ClusterIP
+  port: 2000
+
+# Configuración de logs
+logging:
+  level: "info" # debug, info, warn, error
+
+# Configuración de métricas
+metrics:
+  enabled: true
+  port: 2000

@@ -5,7 +5,7 @@ metadata:
   namespace: argocd
   labels:
     project: bootstrap
-    phase: "02"
+    phase: "3"
 spec:
   project: bootstrap
   sources:
@@ -14,7 +14,7 @@ spec:
       targetRevision: v1.18.2
       helm:
         valueFiles:
-          - $values/apps/02-cert-manager/values.yaml
+          - $values/apps/cert-manager/values.yaml
     - repoURL: https://github.com/fede-r1c0/homelab
       targetRevision: HEAD
       ref: values

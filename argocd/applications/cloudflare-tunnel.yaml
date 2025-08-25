@@ -1,40 +1,47 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: backstage
+  name: cloudflare-tunnel
   namespace: argocd
   labels:
     project: applications
-    phase: "04"
+    phase: "4"
+    managed-by: argocd
+    app.kubernetes.io/name: cloudflare-tunnel
+    app.kubernetes.io/part-of: homelab
 spec:
   project: applications
+
+  # Multi-source pattern
   sources:
-    - repoURL: https://backstage.github.io/charts
-      chart: backstage
-      targetRevision: 2.6.0
+    - repoURL: https://charts.community.cloudflare.com
+      chart: cloudflared
+      targetRevision: 0.1.0
       helm:
         valueFiles:
-          - $values/apps/04-backstage/values.yaml
+          - $values/apps/cloudflare-tunnel/values.yaml
     - repoURL: https://github.com/fede-r1c0/homelab
       targetRevision: HEAD
       ref: values
-      path: apps/04-backstage
-      directory:
-        include: "backstage-sealedsecret.yaml"
+
   destination:
     server: https://kubernetes.default.svc
-    namespace: backstage
+    namespace: cloudflare-tunnel
+
+  # Sync policy configuration
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - PrunePropagationPolicy=foreground
+      allowEmpty: false
+
     retry:
       limit: 2
       backoff:
         duration: 5s
         factor: 2
         maxDuration: 3m
-  revisionHistoryLimit: 10
+
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

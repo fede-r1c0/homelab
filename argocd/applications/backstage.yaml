@@ -1,31 +1,29 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: metallb
+  name: backstage
   namespace: argocd
   labels:
-    project: bootstrap
-    phase: "01"
+    project: applications
+    phase: "6"
 spec:
-  project: bootstrap
+  project: applications
   sources:
-    - repoURL: https://metallb.github.io/metallb
-      chart: metallb
-      targetRevision: 0.15.2
+    - repoURL: https://backstage.github.io/charts
+      chart: backstage
+      targetRevision: 2.6.0
       helm:
         valueFiles:
-          - $values/apps/01-metallb/values.yaml
+          - $values/apps/backstage/values.yaml
     - repoURL: https://github.com/fede-r1c0/homelab
       targetRevision: HEAD
       ref: values
-    - repoURL: https://github.com/fede-r1c0/homelab
-      targetRevision: HEAD
-      path: apps/01-metallb
+      path: apps/backstage
       directory:
-        include: "metallb-config.yaml"
+        include: "backstage-sealedsecret.yaml"
   destination:
     server: https://kubernetes.default.svc
-    namespace: metallb-system
+    namespace: backstage
   syncPolicy:
     automated:
       prune: true
