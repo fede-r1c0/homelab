@@ -1,0 +1,41 @@
+# -- Deploy Argo CD Applications within this helm release
+# @default -- `{}` (See [values.yaml])
+## Ref: https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/
+applications:
+  homelab-bootstrap:
+    namespace: argocd
+    additionalLabels:
+      project: bootstrap
+      app: homelab-bootstrap
+      phase: bootstrap
+      automated: "true"
+    additionalAnnotations:
+      argocd.argoproj.io/sync-wave: "0"
+    finalizers:
+      - resources-finalizer.argocd.argoproj.io
+    project: default
+    source:
+      repoURL: https://github.com/fede-r1c0/homelab
+      targetRevision: HEAD
+      path: argocd
+      directory:
+        recurse: true
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: argocd
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+        - CreateNamespace=true
+        - PrunePropagationPolicy=foreground
+    revisionHistoryLimit: 10
+#    ignoreDifferences:
+#    - group: apps
+#      kind: Deployment
+#      jsonPointers:
+#      - /spec/replicas
+#    info:
+#    - name: url
+#      value: https://argoproj.github.io/

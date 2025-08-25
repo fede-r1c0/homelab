@@ -1,0 +1,18 @@
+# ArgoCD Configuration para Homelab
+global:
+  domain: argocd.feder1c0.tech
+
+notifications:
+  enabled: false
+
+# Configuración del repositorio de GitHub
+configs:
+  params:
+    server.insecure: true
+
+  repositories:
+    homelab-repository:
+      name: "homelab"
+      url: "https://github.com/fede-r1c0/homelab"
+      type: "git"
+      enableLfs: "true"
