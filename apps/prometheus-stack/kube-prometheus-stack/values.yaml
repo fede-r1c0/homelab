@@ -61,7 +61,7 @@ grafana:
 
 # AlertManager optimization
 alertmanager:
-  enabled: false
+  enabled: true
   service: # Changed from ClusterIP to LoadBalancer
     type: ClusterIP
   alertmanagerSpec:
