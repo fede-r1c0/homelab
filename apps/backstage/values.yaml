@@ -36,7 +36,7 @@ backstage:
     initialDelaySeconds: 60
 
 service:
-  type: LoadBalancer
+  type: ClusterIP
 
 postgresql:
   enabled: true

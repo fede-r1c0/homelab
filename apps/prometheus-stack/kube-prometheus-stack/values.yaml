@@ -21,7 +21,7 @@ prometheus:
     retention: 1d
     resources:
       requests:
-        memory: 128Mi
+        memory: 256Mi
         cpu: 100m
       limits:
         memory: 512Mi
@@ -47,13 +47,13 @@ grafana:
   replicas: 1
   resources:
     requests:
-      memory: 64Mi
-      cpu: 50m
-    limits:
-      memory: 128Mi
+      memory: 256Mi
       cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 200m
   service: # Changed from ClusterIP to LoadBalancer
-    type: LoadBalancer
+    type: ClusterIP
   admin: # Changed from adminUser/adminPassword to existingSecret
     existingSecret: "grafana-secret"
     userKey: "admin-user"
@@ -61,7 +61,7 @@ grafana:
 
 # AlertManager optimization
 alertmanager:
-  enabled: false
+  enabled: true
   service: # Changed from ClusterIP to LoadBalancer
     type: ClusterIP
   alertmanagerSpec:

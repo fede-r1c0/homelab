@@ -1,310 +1,266 @@
-# ArgoCD Setup y Configuración GitOps
+# 🚀 ArgoCD Setup para Homelab
 
-Esta guía te ayuda a configurar ArgoCD en tu cluster k3s para implementar un flujo GitOps completo. Vamos a usar el patrón "App of Apps" para gestionar todo el ecosistema de aplicaciones desde un solo punto de entrada.
+## 🎯 Overview
+Configuración de ArgoCD usando el **chart oficial de Helm** para implementar GitOps en tu cluster K3s.
 
-## 🚀 Instalación de ArgoCD
+## 📋 Prerrequisitos
+- [x] K3s instalado y funcionando
+- [x] Cilium como CNI
+- [x] Helm configurado
+- [x] Acceso al cluster K3s
 
-### **Prerequisitos**
+## 🚀 Instalación via Helm Chart Oficial
 
-- Cluster `k3s` funcionando con `Cilium` como CNI
-- `kubectl` configurado y conectado al cluster
-- `helm` instalado
-
-### **1. Instalación con Helm Chart Oficial**
-
-Desde tu Raspberry Pi (conectado via SSH), ejecutá estos comandos:
-
+### 1. Agregar Repositorio de Helm
 ```bash
 # Agregar repositorio oficial de ArgoCD
 helm repo add argo https://argoproj.github.io/argo-helm
 helm repo update
+```
 
-# Instalar ArgoCD con configuración estándar
+### 2. Configurar Values.yaml
+```bash
+# Editar la configuración
+nano apps/00-argocd/values.yaml
+```
+
+### 3. Instalar ArgoCD via Helm
+```bash
+# Instalar ArgoCD con configuración personalizada
 helm install argocd argo/argo-cd \
   --namespace argocd \
   --create-namespace \
-  --set configs.params."server\.insecure"=true
-
-# Verificar que se instaló correctamente
-kubectl get pods -n argocd
-kubectl get svc -n argocd
+  --values apps/00-argocd/values.yaml \
+  --wait
 ```
 
-### **2. Acceso Inicial**
+### 4. Verificar Instalación
+```bash
+# Verificar pods
+kubectl get pods -n argocd
 
-Por defecto, ArgoCD se instala con un servicio ClusterIP. Para acceder inicialmente:
+# Verificar servicios
+kubectl get svc -n argocd
 
+# Verificar aplicaciones
+kubectl get applications -n argocd
+```
+
+### 5. Obtener Contraseña de Admin
+```bash
+# Obtener contraseña inicial
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+```
+
+### 6. Acceder a ArgoCD
 ```bash
 # Port-forward para acceso local
-kubectl port-forward svc/argocd-server -n argocd 8080:80 &
+kubectl port-forward svc/argocd-server -n argocd 8080:80
 
-# Obtener password inicial
-kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath='{.data.password}' | base64 -d
-
-# Acceder via: http://localhost:8080
+# Abrir navegador en http://localhost:8080
 # Usuario: admin
-# Password: [resultado del comando anterior]
+# Contraseña: [obtenida en paso 5]
 ```
 
-**Nota:** Más adelante, cuando instales MetalLB, podrás cambiar el servicio a LoadBalancer para acceso directo desde tu red.
+## 🔧 Configuración Avanzada
 
-## 🏗️ Arquitectura del Repositorio
-
-### **Estructura Implementada**
-
-```bash
-homelab/
-├── argocd/                      # Configuración de ArgoCD
-│   ├── projects/                # Proyectos con RBAC granular
-│   │   ├── bootstrap.yaml       # Apps base del cluster
-│   │   ├── security.yaml        # Apps de seguridad
-│   │   ├── monitoring.yaml      # Stack de observabilidad
-│   │   └── applications.yaml    # Apps de nivel aplicación
-│   └── applications/            # Definiciones de aplicaciones
-│       ├── homelab-bootstrap.yaml
-│       ├── 00-sealed-secrets.yaml
-│       ├── 01-metallb.yaml
-│       └── [otras apps...]
-├── apps/                        # Valores personalizados para cada app
-│   ├── 00-sealed-secrets/values.yaml
-│   ├── 01-metallb/values.yaml
-│   └── [otras configuraciones...]
-```
-
-### **Cómo Funciona la Arquitectura**
-
-#### **🎯 Patrón "App of Apps"**
-
-- **`homelab-bootstrap`**: App principal que lee `argocd/applications/`
-- **Apps individuales**: Cada definición en `applications/` crea una app específica
-- **Helm charts oficiales**: Cada app usa su chart oficial + valores custom
-- **Sincronización automática**: Cambios en Git se aplican automáticamente
-
-#### **🔒 Proyectos para RBAC**
-
-- **bootstrap**: Apps críticas (Sealed Secrets, MetalLB, cert-manager)
-- **security**: Herramientas de seguridad (OPA Gatekeeper)
-- **monitoring**: Stack de observabilidad (Prometheus, Grafana, Loki)
-- **applications**: Apps de nivel usuario (Backstage)
-
-#### **📦 Sistema de Dependencias**
-
-```text
-Sealed Secrets (00) → Base para secretos
-     ↓
-MetalLB (01) → LoadBalancer para servicios
-     ↓
-cert-manager (02) → Certificados TLS
-     ↓
-OPA Gatekeeper (03) → Políticas de seguridad
-     ↓
-Prometheus Stack (04) → Observabilidad
-     ↓
-Backstage (05) → Developer Portal
-```
-
-## 🛠️ Configuración Manual de GitOps
-
-### **1. Crear Proyectos ArgoCD**
-
-Primero, creá los proyectos que van a organizar tus aplicaciones:
-
-```bash
-# Aplicar proyectos con RBAC
-kubectl apply -f argocd/projects/
-
-# Verificar que se crearon
-kubectl get appprojects -n argocd
-```
-
-### **2. Agregar Repositorio GitHub**
-
-```bash
-# Login a ArgoCD CLI
-argocd login localhost:8080 --username admin --password [PASSWORD] --insecure
-
-# Agregar tu repositorio
-argocd repo add $REPO_URL --insecure
-
-# Verificar que se agregó
-argocd repo list
-```
-
-### **3. Crear Aplicación Bootstrap**
-
-```bash
-# Crear la app principal que gestiona todo
-kubectl apply -f argocd/applications/homelab-bootstrap.yaml
-
-# Verificar que se creó
-argocd app get homelab-bootstrap
-
-# Sincronizar para que empiece a crear las otras apps
-argocd app sync homelab-bootstrap
-```
-
-### **4. Monitorear el Despliegue**
-
-```bash
-# Ver todas las aplicaciones
-argocd app list
-
-# Ver estado detallado de una app
-argocd app get sealed-secrets
-
-# Ver logs de sincronización
-argocd app logs sealed-secrets --follow
-```
-
-## 🔧 Configuración Específica por Aplicación
-
-### **Sealed Secrets (00-sealed-secrets)**
-
+### Configuración de Ingress
 ```yaml
-# Se instala automáticamente, no requiere configuración manual
-# Usa el chart oficial de Bitnami con recursos optimizados para Raspberry Pi
+# En values.yaml
+server:
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    hosts:
+      - argocd.yourdomain.com
+    tls:
+      - secretName: argocd-tls
+        hosts:
+          - argocd.yourdomain.com
 ```
 
-### **MetalLB (01-metallb)**
-
-**⚠️ Configuración Crítica:** MetalLB necesita un pool de IPs configurado.
-
-```bash
-# Después de que se instale MetalLB, verificar que necesita configuración
-kubectl get ipaddresspools -n metallb-system
-
-# Si está vacío, MetalLB está instalado pero sin configurar
-# La configuración está en apps/01-metallb/values.yaml:
-# ipAddressPools:
-#   - name: default
-#     addresses:
-#       - 192.168.68.100-192.168.68.105
+### Configuración de Recursos
+```yaml
+# Optimizado para Raspberry Pi
+server:
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
 ```
 
-**Cambiar ArgoCD a LoadBalancer:**
-
-```bash
-# Una vez que MetalLB esté configurado y funcionando
-kubectl patch svc argocd-server -n argocd -p '{"spec":{"type":"LoadBalancer"}}'
-
-# Verificar que obtiene IP externa (debería ser una IP del pool 192.168.68.100-105)
-kubectl get svc argocd-server -n argocd -w
-
-# Ejemplo de resultado esperado:
-# NAME            TYPE           CLUSTER-IP      EXTERNAL-IP      PORT(S)
-# argocd-server   LoadBalancer   10.43.181.160   192.168.68.100   80:31766/TCP,443:31617/TCP
+### Configuración de Seguridad
+```yaml
+# Para desarrollo/homelab
+server:
+  extraArgs:
+    - --insecure
+    - --disable-auth
+    - --disable-auth-override
 ```
 
-### **cert-manager (02-cert-manager)**
+## 🔍 Verificación y Testing
 
+### 1. Verificar Estado del Cluster
 ```bash
-# Verificar que los CRDs se instalaron correctamente
-kubectl get crd | grep cert-manager
+# Verificar todos los componentes
+kubectl get all -n argocd
 
-# Verificar que los webhooks están funcionando
-kubectl get validatingwebhookconfigurations | grep cert-manager
+# Verificar logs del servidor
+kubectl logs -n argocd -l app.kubernetes.io/name=argocd-server -f
+
+# Verificar logs del repositorio
+kubectl logs -n argocd -l app.kubernetes.io/name=argocd-repo-server -f
 ```
 
-### **Prometheus Stack (04-prometheus-stack)**
-
-**⚠️ Aplicación Pesada:** Requiere más recursos y tiempo de instalación.
-
+### 2. Test de Conectividad
 ```bash
-# Monitorear la instalación (puede tardar varios minutos)
-kubectl get pods -n monitoring -w
+# Test de conexión al servidor
+kubectl exec -it -n argocd deployment/argocd-server -- curl http://localhost:8080/healthz
 
-# Verificar que Grafana está funcionando
-kubectl get svc -n monitoring | grep grafana
-
-# Acceder a Grafana (una vez que MetalLB esté configurado)
-# URL: http://[METALLB-IP]:3000
-# Usuario: admin / Contraseña: prom-operator
+# Test de conexión al repositorio
+kubectl exec -it -n argocd deployment/argocd-repo-server -- curl http://localhost:8081/healthz
 ```
 
-### **OPA Gatekeeper (03-opa-gatekeeper)**
-
+### 3. Verificar Aplicaciones
 ```bash
-# Verificar que los admission controllers están activos
-kubectl get validatingwebhookconfigurations | grep gatekeeper
-
-# Ver qué políticas están aplicadas
-kubectl get constrainttemplate
-```
-
-## 📊 Verificación del Estado General
-
-### **Comandos Útiles**
-
-```bash
-# Estado de todas las aplicaciones ArgoCD
+# Ver aplicaciones desplegadas
 argocd app list
 
-# Apps que no están sincronizadas
-argocd app list | grep -v Synced
-
-# Ver recursos de todos los namespaces
-kubectl get pods --all-namespaces
-
-# Ver servicios con IPs externas
-kubectl get svc --all-namespaces | grep LoadBalancer
+# Ver estado de sincronización
+argocd app get homelab-bootstrap
 ```
 
-### **Troubleshooting Común**
+## 🛠️ Troubleshooting
 
-1. **App en estado OutOfSync**
+### Problemas Comunes
 
-   ```bash
-   # Forzar sincronización
-   argocd app sync [APP-NAME] --force
-
-   # Ver logs detallados
-   argocd app logs [APP-NAME]
-   ```
-
-2. **MetalLB no asigna IPs**
-
-   ```bash
-   # Verificar configuración de pools
-   kubectl get ipaddresspools -n metallb-system -o yaml
-
-   # Ver logs de MetalLB
-   kubectl logs -n metallb-system -l app=metallb
-   ```
-
-3. **Pods en Pending**
-
-   ```bash
-   # Verificar recursos del nodo
-   kubectl describe node [NODE-NAME]
-
-   # Ver eventos del cluster
-   kubectl get events --sort-by=.metadata.creationTimestamp
-   ```
-
-## ⚡ Script de Automatización
-
-Para los que prefieren automatizar todo el proceso, hay un script disponible:
-
+#### 1. Pods No Arrancan
 ```bash
-# Ejecutar bootstrap automático
-./scripts/bootstrap-argocd.sh
+# Verificar eventos
+kubectl get events -n argocd --sort-by=.metadata.creationTimestamp
+
+# Verificar logs
+kubectl logs -n argocd -l app.kubernetes.io/name=argocd-server
+
+# Verificar recursos
+kubectl describe pod -n argocd -l app.kubernetes.io/name=argocd-server
 ```
 
-**Nota:** El script automatiza todo lo explicado arriba, pero es recomendable entender el proceso manual primero. En versiones futuras se mejorarán los scripts para mayor confiabilidad.
+#### 2. Problemas de Conectividad
+```bash
+# Verificar servicios
+kubectl get svc -n argocd
+
+# Verificar endpoints
+kubectl get endpoints -n argocd
+
+# Test de conectividad interna
+kubectl exec -it -n argocd deployment/argocd-server -- curl http://argocd-repo-server:8081
+```
+
+#### 3. Problemas de Autenticación
+```bash
+# Verificar secret de admin
+kubectl get secret -n argocd argocd-initial-admin-secret
+
+# Resetear contraseña si es necesario
+kubectl -n argocd patch secret argocd-secret \
+  -p '{"stringData":{"admin.password":"nueva-contraseña"}}'
+```
+
+## 🔒 Seguridad
+
+### 1. Configuración de RBAC
+```yaml
+# En values.yaml
+rbac:
+  create: true
+  pspEnabled: false
+```
+
+### 2. Network Policies
+```yaml
+# Crear network policy para ArgoCD
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: argocd-network-policy
+  namespace: argocd
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-server
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from: []
+  egress:
+  - to: []
+```
+
+## 📊 Monitoreo
+
+### 1. Métricas de Prometheus
+```yaml
+# En values.yaml
+metrics:
+  enabled: true
+  service:
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "8080"
+```
+
+### 2. Logs del Sistema
+```bash
+# Ver logs en tiempo real
+kubectl logs -n argocd -l app.kubernetes.io/name=argocd-server -f
+
+# Ver logs de las últimas 24h
+kubectl logs -n argocd -l app.kubernetes.io/name=argocd-server --since="24h"
+```
+
+## 🔄 Actualizaciones
+
+### 1. Actualizar Chart
+```bash
+# Actualizar repositorio
+helm repo update
+
+# Actualizar ArgoCD
+helm upgrade argocd argo/argo-cd \
+  --namespace argocd \
+  --values apps/00-argocd/values.yaml
+```
+
+### 2. Verificar Configuración
+```bash
+# Verificar configuración actual
+helm get values argocd -n argocd
+
+# Verificar estado del deployment
+kubectl get deployment argocd-server -n argocd
+```
 
 ## 🎯 Próximos Pasos
 
-Una vez que tengas todo funcionando:
+1. **Configurar repositorio de GitHub** en values.yaml
+2. **Crear aplicación bootstrap** para auto-desplegar el resto
+3. **Configurar ingress** para acceso externo
+4. **Implementar políticas de seguridad** con RBAC
 
-1. **Configurar alertas** en Prometheus
-2. **Agregar políticas** personalizadas en OPA Gatekeeper
-3. **Configurar Backstage** como developer portal
-4. **Implementar backup** con Velero
-5. **Experimentar** con más aplicaciones
+## 📚 Referencias
 
-## 📚 Recursos Adicionales
-
+- [ArgoCD Helm Chart](https://artifacthub.io/packages/helm/argo/argo-cd)
 - [ArgoCD Documentation](https://argo-cd.readthedocs.io/)
-- [App of Apps Pattern](https://argo-cd.readthedocs.io/en/stable/operator-manual/cluster-bootstrapping/)
-- [MetalLB Configuration](https://metallb.universe.tf/configuration/)
-- [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets)
+- [Helm Documentation](https://helm.sh/docs/)
+- [K3s Documentation](https://docs.k3s.io/)
+
+---
+
+**Nota**: Esta implementación usa solo el chart oficial de Helm, sin scripts de bash. Todo se configura a través de values.yaml y se despliega directamente con Helm.

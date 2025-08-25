@@ -8,7 +8,8 @@
 
 Este repo es mi espacio para probar cosas de Kubernetes, GitOps y herramientas CNCF. La idea es ir armando un laboratorio casero donde pueda experimentar, romper, arreglar y aprender sobre la marcha. No hay un objetivo estricto: simplemente ir sumando buenas prácticas, automatización y observabilidad, y de paso dejar todo documentado para que cualquiera pueda replicarlo o adaptarlo.
 
-Funciona sobre una Raspberry Pi 5, pero en realidad podés usar cualquier equipo con Linux (o WSL en Windows, o macOS) que cumpla con los requisitos mínimos de hardware. El objetivo es que sea fácil de reproducir y modificar.
+Funciona sobre una Raspberry Pi 5, pero en realidad podés usar cualquier equipo con Unix/Linux (o WSL en Windows) que cumpla con los requisitos mínimos de hardware.  
+El objetivo es que sea fácil de reproducir y modificar.
 
 ## 🎯 Objetivos
 
@@ -22,21 +23,20 @@ Funciona sobre una Raspberry Pi 5, pero en realidad podés usar cualquier equipo
 ### App of Apps con ArgoCD
 
 - `homelab-bootstrap`: la app principal que orquesta todo
-- Apps individuales: cada herramienta tiene su propia config
-- Proyectos separados para organizar y aplicar RBAC
-- ArgoCD detecta y gestiona todo desde el repo
+- Apps individuales: cada herramienta tiene su propia config en `argocd/applications/`
+- Proyectos separados para organizar y aplicar RBAC en `argocd/projects/`
+- ArgoCD detecta y gestiona todo desde el repo en `argocd/`
 
-### Stack de Tecnologías
+### Stack de tecnologías utilizadas
 
-- **OS**: Ubuntu Server (ARM64) o cualquier Linux
-- **Kubernetes**: k3s (liviano, ideal para ARM o equipos chicos)
-- **CNI**: Cilium
-- **Load Balancer**: MetalLB
-- **Certificados**: cert-manager
-- **Observabilidad**: Prometheus, Grafana, Alertmanager
-- **GitOps**: ArgoCD
-- **Seguridad**: Cilium Network Policies, Sealed Secrets
-- **Internal Developer Portal**: Backstage
+- **OS**: [Raspberry Pi OS Lite (arm64)](https://www.raspberrypi.com/software/operating-systems/#raspberry-pi-os-lite-32-bit)
+- **Kubernetes**: [k3s](https://k3s.io/) (liviano, ideal para ARM o equipos chicos)
+- **Kubernetes CNI**: [Cilium](https://docs.cilium.io/)
+- **Seguridad**: [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets)
+- **Exponer servicios a internet**: [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/tunnel-routes/)
+- **Observabilidad**: [Prometheus](https://prometheus.io/), [Grafana](https://grafana.com/), [Alertmanager](https://prometheus.io/docs/alerting/latest/alertmanager/)
+- **GitOps**: [ArgoCD](https://argo-cd.readthedocs.io/)
+- **Internal Developer Portal**: [Backstage](https://backstage.io/)
 
 ## 📁 Estructura del Repo
 
@@ -46,71 +46,205 @@ homelab/
 ├── argocd/                      # Configuración de ArgoCD
 │   ├── projects/                # Definición de proyectos con RBAC
 │   ├── applications/            # Aplicaciones individuales (App of Apps)
-│   └── application-sets/        # ApplicationSets para gestión masiva
 ├── apps/                        # Configuraciones de aplicaciones (values.yaml)
-├── scripts/                     # Scripts de automatización
 ├── docs/                        # Documentación técnica
 └── README.md                    # Este archivo
 ```
 
 ### Apps Incluidas
 
-- **00-sealed-secrets**: Gestión segura de secretos
-- **01-metallb**: Load balancer para servicios
-- **02-cert-manager**: Certificados TLS automáticos
-- **03-prometheus-stack**: Observabilidad completa
-- **04-backstage**: Developer Portal
-
-> **Nota**: Las apps se instalan en este orden para respetar dependencias:
+- **argo**: Bootstrap del homelab con ArgoCD
+- **sealed-secrets**: Gestion segura de secretos
+- **cloudflare-tunnel**: Exponer servicios a internet con Cloudflare Tunnel
+- **prometheus-stack**: Observabilidad completa con Prometheus, Grafana y Alertmanager
+- **backstage**: Internal Developer Portal
 
 ## 🚀 Implementación
 
-### Setup Inicial
+### Instalar k3s
 
-#### Opción 1: Script Automático (Recomendado)
+#### Preparación del Sistema
 
 ```bash
-# Hacer ejecutable y ejecutar
-chmod +x scripts/simple-bootstrap.sh
-./scripts/simple-bootstrap.sh
+# Verificar cgroups habilitados
+cat /boot/firmware/cmdline.txt | grep cgroup
+
+# Si no están habilitados, agregar:
+echo 'cgroup_memory=1 cgroup_enable=memory' | sudo tee -a /boot/firmware/cmdline.txt
+
+# Verificar módulos del kernel
+lsmod | grep vxlan
+
+# Si no están disponibles, instalar:
+sudo apt install -y linux-modules-extra-raspi
 ```
 
-#### Opción 2: Manual via UI de ArgoCD
-
-1. Agregar repo `https://github.com/fede-r1c0/homelab` en ArgoCD
-2. Crear app `homelab-bootstrap` apuntando a `argocd/`
-3. ArgoCD auto-descubre y gestiona todo lo demás
-
-### Cómo Funciona
-
-- **ArgoCD lee** tu repo automáticamente
-- **Crea proyectos** con RBAC granular
-- **Despliega apps** en el orden correcto (dependencias)
-- **Sincroniza** cambios automáticamente
-- **Auto-healing** si algo se rompe
-- **GitOps** completo: todo se gestiona desde el repo
-
-### Comandos Útiles
-
-#### Verificar estado rápidamente
+#### Instalación de k3s
 
 ```bash
-./scripts/quick-check.sh
+# Instalar K3S sin Traefik (usaremos Cilium)
+curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--flannel-backend=none --disable-network-policy --disable=traefik" sh -
+
+# Verificar instalación
+sudo systemctl status k3s
+
+# Configurar kubeconfig
+mkdir -p ~/.kube
+sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+sudo chown $USER:$USER ~/.kube/config
+
+# Verificar cluster
+kubectl get nodes
+kubectl cluster-info
 ```
 
-**Comandos básicos:**
+ **Importante:** En caso de utilizar MetalLB desactivar Klipper en la instalación de k3s  (`--disable servicelb`).
+
+#### Configuración de k3s
 
 ```bash
-# Ver apps de ArgoCD
-kubectl get applications -n argocd
+# Verificar configuración
+cat ~/.kube/config
 
-# Ver pods
+# Configurar variables de entorno
+echo 'export KUBECONFIG=~/.kube/config' >> ~/.zshrc
+echo 'export PATH=$PATH:/usr/local/bin' >> ~/.zshrc
+
+# Recargar configuración
+source ~/.zshrc
+
+# Verificar acceso
+kubectl get nodes
+kubectl get pods --all-namespaces
+```
+
+### Instalar Cilium
+
+```bash
+# Instalar Helm
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+# Verificar instalación
+helm version
+
+# Agregar repositorio de Cilium
+helm repo add cilium https://helm.cilium.io/
+helm repo update
+```
+
+#### Instalación de Cilium
+
+```bash
+# Instalar Cilium con configuración optimizada para Raspberry Pi
+helm install cilium cilium/cilium \
+  --namespace kube-system \
+  --set kubeProxyReplacement=true \
+  --set k8sServiceHost=127.0.0.1 \
+  --set k8sServicePort=6443 \
+  --set operator.replicas=1 \
+  --set hubble.enabled=true \
+  --set hubble.relay.enabled=true \
+  --set hubble.ui.enabled=true \
+  --set hubble.ui.service.type=ClusterIP \
+  --set prometheus.enabled=true \
+  --set operator.prometheus.enabled=true
+
+# Verificar instalación
+kubectl get pods -n kube-system -l k8s-app=cilium
+kubectl get pods -n kube-system -l name=cilium-operator
+```
+
+#### Verificación del Setup
+
+```bash
+# Instalar Cilium CLI
+curl -L --remote-name-all https://github.com/cilium/cilium-cli/releases/latest/download/cilium-linux-arm64.tar.gz
+tar xzvfC cilium-linux-arm64.tar.gz /usr/local/bin
+rm cilium-linux-arm64.tar.gz
+
+# Verificar Cilium
+cilium status
+cilium connectivity test
+
+# Verificar métricas
+kubectl get pods -n kube-system -l k8s-app=cilium
+kubectl get pods -n kube-system -l k8s-app=hubble-relay
+```
+
+### Instalar ArgoCD
+
+Agregar repositorio de Helm de ArgoCD
+
+```bash
+# Agregar repositorio oficial de ArgoCD
+helm repo add argo https://argoproj.github.io/argo-helm
+helm repo update
+```
+
+```bash
+# Instalar ArgoCD con configuración personalizada
+helm install argocd argo/argo-cd \
+  --namespace argocd \
+  --create-namespace \
+  --values apps/argo/argocd/values.yaml \
+  --wait
+```
+
+#### Verificación de la Instalación
+
+```bash
+# Verificar pods
 kubectl get pods -n argocd
 
-# Logs de ArgoCD
-kubectl logs -n argocd -l app.kubernetes.io/name=argocd-server
+# Verificar servicios
+kubectl get svc -n argocd
+
+# Verificar aplicaciones
+kubectl get applications -n argocd
 ```
 
+#### Obtener contraseña de Admin
+
+```bash
+# Obtener contraseña inicial
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+
+# Resetear contraseña si es necesario
+kubectl -n argocd patch secret argocd-secret \
+  -p '{"stringData":{"admin.password":"nueva-contraseña"}}'
+```
+
+#### Acceder a ArgoCD
+
+```bash
+# Port-forward para exponer el servicio de ArgoCD en el puerto 8080 de la Raspberry Pi
+kubectl port-forward svc/argocd-server -n argocd 8080:80
+```
+
+Acceder desde otro equipo al puerto 8080 de la Raspberry Pi via SSH  
+
+```bash
+# Acceso via SSH al puerto 8080 de la Raspberry Pi
+ssh -L 8080:localhost:8080 user@raspberrypi.hostname
+
+# Abrir navegador en http://localhost:8080
+# Usuario: admin
+# Contraseña: [obtenida en paso anterior]
+```
+
+### Bootstrap del Homelab
+
+En este punto ya tenemos ArgoCD instalado y funcionando. Ahora vamos a configurar el bootstrap del homelab.  
+Para crear la application `homelab-bootstrap` vamos a utilzar el chart de helm `argocd-apps`. Esta application se encargara de instalar las aplicaciones y proyectos de ArgoCD que se encuentran en el directorio `argocd`.
+
+```bash
+# Instalar el chart de helm argocd-apps
+helm install argocd-apps argo/argocd-apps \
+  --namespace argocd \
+  --create-namespace \
+  --values apps/argo/argocd-apps/values.yaml \
+  --wait
+```
 
 ## 📚 Documentación Detallada
 
@@ -119,6 +253,7 @@ Ya que este README es solo una vista general, la documentación completa está e
 - **[Raspberry Pi Setup](docs/RASPBERRYPI_SETUP.md)** - Configurar tu Pi u otro Linux con arm64
 - **[k3s Setup](docs/K3S_CILIUM_SETUP.md)** - Instalar el cluster Kubernetes
 - **[ArgoCD Setup](docs/ARGOCD_SETUP.md)** - Configurar GitOps y el patrón App of Apps
+- **[Cloudflare Tunnel](docs/CLOUDFLARED_SETUP.md)** - Exponer servicios a internet de forma segura
 
 ## 🔧 Personalización
 
@@ -132,7 +267,6 @@ Ya que este README es solo una vista general, la documentación completa está e
 
 - **Apps**: Edita `values.yaml` en `apps/`
 - **ArgoCD**: Modifica archivos en `argocd/`
-- **Scripts**: Personaliza `scripts/config.env`
 
 ## 🚨 Troubleshooting Rápido
 
@@ -159,14 +293,13 @@ kubectl logs -n argocd -l app.kubernetes.io/name=argocd-server -f
 
 ## 🌐 Acceso a Servicios
 
-Una vez que todo esté funcionando:
+Con Cloudflare Tunnel configurado se pueden exponer los servicios internos del cluster a internet con un dominio propio configurado en Cloudflare. En mi caso, los servicios se exponen en los siguientes dominios:
 
-| Servicio | URL | Credenciales |
-|----------|-----|--------------|
-| ArgoCD | <http://cluster-ip> | admin / [ver secret] |
-| Grafana | <http://cluster-ip> | admin / prom-operator |
-| Prometheus | <http://cluster-ip:9090> | - |
-| Backstage | <http://cluster-ip:7007> | - |
+| Servicio | URL |
+|----------|-----|
+| ArgoCD | <https://argocd.feder1c0.tech> |
+| Grafana | <https://grafana.feder1c0.tech> |
+| Backstage | <https://backstage.feder1c0.tech> |
 
 ## 🎯 Próximos Pasos
 

@@ -1,0 +1,48 @@
+# MetalLB Configuration for Raspberry Pi Single-Node Cluster
+# Optimized for home lab environment
+
+# Controller configuration
+controller:
+  # Resource limits optimized for Raspberry Pi
+  resources:
+    requests:
+      memory: 64Mi
+      cpu: 100m
+    limits:
+      memory: 128Mi
+      cpu: 200m
+
+  # Service configuration
+  service:
+    type: ClusterIP
+
+  # High availability (disabled for single node)
+  replicaCount: 1
+
+# Speaker configuration
+speaker:
+  # Resource limits optimized for Raspberry Pi
+  resources:
+    requests:
+      memory: 64Mi
+      cpu: 100m
+    limits:
+      memory: 128Mi
+      cpu: 200m
+
+  hostNetwork: true
+
+  # DaemonSet configuration
+  daemonSet:
+    enabled: true
+
+  # Disable FRR for L2 mode (only needed for BGP)
+  frr:
+    enabled: false
+
+# Disable FRR globally (only needed for BGP, we use L2 mode)
+frr:
+  enabled: false
+
+frrk8s:
+  enabled: false
