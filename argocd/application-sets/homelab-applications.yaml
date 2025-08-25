@@ -28,7 +28,7 @@ spec:
         chart: "{{chart}}"
         path: "{{path}}"
         helm:
-          valueFiles: {{valueFiles}} # Fixed: remove quotes so it's templated as an array, not a string
+          valueFiles: "{{valueFiles}}" # Fixed: remove quotes so it's templated as an array, not a string
       destination:
         server: https://kubernetes.default.svc
         namespace: "{{namespace}}"
