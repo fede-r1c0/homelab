@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd
+  namespace: argocd
+  labels:
+    project: applications
+    phase: "0"
+spec:
+  project: bootstrap
+  sources:
+    - repoURL: https://argoproj.github.io/argo-helm
+      chart: argo-cd
+      targetRevision: 8.3.0
+      helm:
+        valueFiles:
+          - $values/apps/argo/argocd/values.yaml
+    - repoURL: https://argoproj.github.io/argo-helm
+      chart: argocd-apps
+      targetRevision: 2.0.2
+      helm:
+        valueFiles:
+          - $values/apps/argo/argocd-apps/values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: backstage
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+    retry:
+      limit: 2
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  revisionHistoryLimit: 10
