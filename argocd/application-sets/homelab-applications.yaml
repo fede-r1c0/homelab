@@ -9,7 +9,7 @@ spec:
   generators:
     - git:
         repoURL: https://github.com/fede-r1c0/homelab
-        targetRevision: HEAD
+        revision: HEAD # Fixed: use 'revision' instead of 'targetRevision'
         files:
           - path: argocd/applications/*.yaml
   template:
@@ -28,7 +28,7 @@ spec:
         chart: "{{chart}}"
         path: "{{path}}"
         helm:
-          valueFiles: "{{valueFiles}}"
+          valueFiles: {{valueFiles}} # Fixed: remove quotes so it's templated as an array, not a string
       destination:
         server: https://kubernetes.default.svc
         namespace: "{{namespace}}"
