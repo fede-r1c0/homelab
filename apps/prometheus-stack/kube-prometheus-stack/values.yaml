@@ -53,7 +53,7 @@ grafana:
       memory: 128Mi
       cpu: 100m
   service: # Changed from ClusterIP to LoadBalancer
-    type: LoadBalancer
+    type: ClusterIP
   admin: # Changed from adminUser/adminPassword to existingSecret
     existingSecret: "grafana-secret"
     userKey: "admin-user"
