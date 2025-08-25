@@ -15,7 +15,7 @@ spec:
   # Multi-source pattern
   sources:
     - repoURL: https://community-charts.github.io/helm-charts
-      chart: community-charts/cloudflared
+      chart: cloudflared
       targetRevision: 2.1.2
       helm:
         valueFiles:
