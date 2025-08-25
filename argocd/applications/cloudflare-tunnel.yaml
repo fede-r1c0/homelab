@@ -15,7 +15,7 @@ spec:
   # Multi-source pattern
   sources:
     - repoURL: https://charts.community.cloudflare.com
-      chart: community-charts
+      chart: community-charts/cloudflared
       targetRevision: 2.1.2
       helm:
         valueFiles:
