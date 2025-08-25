@@ -20,6 +20,8 @@ spec:
         app: "{{name}}"
         project: "{{project}}"
         phase: "{{phase}}"
+      annotations:
+        argocd.argoproj.io/sync-options: "CreateNamespace=true,PrunePropagationPolicy=foreground"
     spec:
       project: "{{project}}"
       source:
@@ -28,7 +30,9 @@ spec:
         chart: "{{chart}}"
         path: "{{path}}"
         helm:
-          valueFiles: "{{valueFiles}}" # Fixed: remove quotes so it's templated as an array, not a string
+          releaseName: "{{releaseName}}"
+          valueFiles:
+            - "values.yaml"
       destination:
         server: https://kubernetes.default.svc
         namespace: "{{namespace}}"
