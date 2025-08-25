@@ -38,6 +38,12 @@ spec:
       kind: Application
     - group: "argoproj.io"
       kind: AppProject
+    - group: "monitoring.coreos.com"
+      kind: "*"
+    - group: "cert-manager.io"
+      kind: "*"
+    - group: "metallb.io"
+      kind: "*"
 
   # Namespace resource allow list
   namespaceResourceWhitelist:
