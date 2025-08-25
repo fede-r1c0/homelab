@@ -21,7 +21,7 @@ prometheus:
     retention: 1d
     resources:
       requests:
-        memory: 128Mi
+        memory: 256Mi
         cpu: 100m
       limits:
         memory: 512Mi
@@ -47,10 +47,10 @@ grafana:
   replicas: 1
   resources:
     requests:
-      memory: 128Mi
+      memory: 256Mi
       cpu: 100m
     limits:
-      memory: 256Mi
+      memory: 512Mi
       cpu: 200m
   service: # Changed from ClusterIP to LoadBalancer
     type: ClusterIP
