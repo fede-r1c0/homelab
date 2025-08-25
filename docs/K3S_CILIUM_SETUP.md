@@ -13,16 +13,6 @@ Esta guía detalla la instalación y configuración de K3S (Kubernetes ligero) y
 
 ## 🛠️ **Prerrequisitos**
 
-### **Sistema Base**
-
-- ✅ Raspberry Pi OS (Linux arm64)
-- ✅ 8GB RAM (mínimo 4GB)
-- ✅ 64GB+ Almacenamiento
-- ✅ Conexión de red estable
-- ✅ Acceso SSH configurado
-
-### **Software Base**
-
 - ✅ Sistema actualizado
 - ✅ Herramientas de desarrollo instaladas
 - ✅ SSH configurado y funcionando
@@ -119,14 +109,14 @@ helm repo update
 # Instalar Cilium con configuración optimizada para Raspberry Pi
 helm install cilium cilium/cilium \
   --namespace kube-system \
-  --set kubeProxyReplacement=strict \
+  --set kubeProxyReplacement=true \
   --set k8sServiceHost=127.0.0.1 \
   --set k8sServicePort=6443 \
   --set operator.replicas=1 \
   --set hubble.enabled=true \
   --set hubble.relay.enabled=true \
   --set hubble.ui.enabled=true \
-  --set hubble.ui.service.type=LoadBalancer \
+  --set hubble.ui.service.type=ClusterIP \
   --set prometheus.enabled=true \
   --set operator.prometheus.enabled=true
 
