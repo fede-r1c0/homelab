@@ -26,7 +26,7 @@ spec:
       ref: values
   destination:
     server: https://kubernetes.default.svc
-    namespace: backstage
+    namespace: argocd
   syncPolicy:
     automated:
       prune: true
