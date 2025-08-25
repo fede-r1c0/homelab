@@ -21,6 +21,9 @@ spec:
       helm:
         valueFiles:
           - $values/apps/argo/argocd-apps/values.yaml
+    - repoURL: https://github.com/fede-r1c0/homelab
+      targetRevision: HEAD
+      ref: values
   destination:
     server: https://kubernetes.default.svc
     namespace: backstage
