@@ -4,13 +4,13 @@ metadata:
   name: cloudflare-tunnel
   namespace: argocd
   labels:
-    project: applications
+    project: security
     phase: "4"
     managed-by: argocd
     app.kubernetes.io/name: cloudflare-tunnel
     app.kubernetes.io/part-of: homelab
 spec:
-  project: applications
+  project: security
 
   # Multi-source pattern
   sources:
