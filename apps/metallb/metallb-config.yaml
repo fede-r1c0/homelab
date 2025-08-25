@@ -8,7 +8,7 @@ metadata:
     app.kubernetes.io/component: config
 spec:
   addresses:
-    - 192.168.68.100-192.168.68.120
+    - 192.168.70.101-192.168.70.121
 ---
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement

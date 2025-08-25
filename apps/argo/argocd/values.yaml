@@ -5,7 +5,6 @@ global:
 notifications:
   enabled: false
 
-# Configuración del repositorio de GitHub
 configs:
   params:
     server.insecure: true
@@ -16,3 +15,7 @@ configs:
       url: "https://github.com/fede-r1c0/homelab"
       type: "git"
       enableLfs: "true"
+
+server:
+  service:
+    type: LoadBalancer
