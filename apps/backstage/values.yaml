@@ -7,7 +7,8 @@ global:
   imagePullSecrets: []
 
 backstage:
-  imageRegistry:
+  # -- Backstage image
+  image:
     registry: "ghcr.io"
     repository: "fede-r1c0/backstage"
     tag: "latest"
