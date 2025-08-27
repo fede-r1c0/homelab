@@ -20,6 +20,8 @@ backstage:
   # -- Backstage container command
   command: ["node", "packages/backend"]
 
+  extraEnvVarsSecrets: ["backstage-secret"]
+
   # -- Resource requests/limits
   resources:
     limits:
