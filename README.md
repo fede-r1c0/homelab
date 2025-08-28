@@ -3,7 +3,6 @@
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=flat&logo=kubernetes&logoColor=white)](https://kubernetes.io/)
 [![ArgoCD](https://img.shields.io/badge/ArgoCD-EF7B4D?style=flat&logo=argocd&logoColor=white)](https://argoproj.github.io/argo-cd/)
-[![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)](https://github.com/fede-r1c0/homelab)
 
 ## 📋 Descripción
 
@@ -157,7 +156,7 @@ helm install argocd-apps argo/argocd-apps \
 
 Estos 5 pasos estan pensados para reproducir el entorno de manera automatica con los archivos de configuracion actualizados en el directorio `apps/`.  
 
-Para una primera instalación, es necesario generar antes los secretos `[*]-sealedsecret.yaml` para cada servicio con sus respectivas credenciales o información sensible que serán diferentes para cada usuario/cluster.
+Para una primera instalación, es necesario generar antes los secretos `[*]-sealedsecret.yaml` para cada servicio que lo requiera con sus respectivas credenciales o información sensible que serán diferentes para cada usuario/cluster.
 
 ## 🔧 Configuración Automática
 
