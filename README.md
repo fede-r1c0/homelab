@@ -23,55 +23,30 @@ El objetivo es proporcionar un entorno de aprendizaje y experimentación que sea
 
 ## 🏗️ Arquitectura
 
-### Flujo de Tráfico y Componentes
-
 ```mermaid
 graph TB
-    %% Internet Layer
-    Internet[🌐 INTERNET<br/>HTTPS Requests<br/>• argocd.feder1c0.tech<br/>• grafana.feder1c0.tech<br/>• backstage.feder1c0.tech]
+    User[Usuario] --> URL[argocd.feder1c0.tech]
+    URL[argocd.feder1c0.tech] --> Cloudflare[Cloudflare]
+    Cloudflare --> Cloudflared[Cloudflared]
     
-    %% Cloudflare Layer
-    Cloudflare[☁️ CLOUDFLARE<br/>• DNS Management<br/>• SSL/TLS Termination<br/>• DDoS Protection<br/>• Global CDN]
-    
-    %% Cloudflare Tunnel
-    Cloudflared[🔗 CLOUDFLARED DEPLOYMENT<br/>┌─────────────┐ ┌─────────────┐ ┌─────────────┐<br/>│   Pod 1     │ │   Pod 2     │ │   Pod N     │<br/>│cloudflared  │ │cloudflared  │ │cloudflared  │<br/>│  :443       │ │  :443       │ │  :443       │<br/>└─────────────┘ └─────────────┘ └─────────────┘]
-    
-    %% MetalLB Layer
-    MetalLB[⚖️ METALLB CONTROLLER<br/>• IP Address Pool: 192.168.1.240-192.168.1.250<br/>• L2 Advertisement<br/>• Load Balancing]
-    
-    %% Kubernetes Services Layer
-    Services[🔌 KUBERNETES SERVICES<br/>┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐<br/>│  ArgoCD     │ │  Grafana    │ │ Backstage   │ │ Prometheus  │ │ Alertmanager│<br/>│  Service    │ │  Service    │ │  Service    │ │  Service    │ │  Service    │<br/>│LoadBalancer │ │LoadBalancer │ │LoadBalancer │ │LoadBalancer │ │LoadBalancer │<br/>│   :80/443   │ │    :80      │ │   :7007     │ │   :9090     │ │   :9093     │<br/>└─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘]
-    
-    %% Application Deployments Layer
-    Deployments[🚀 APPLICATION DEPLOYMENTS<br/>┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐<br/>│  ArgoCD     │ │  Grafana    │ │ Backstage   │ │ Prometheus  │ │ Alertmanager│<br/>│ Deployment  │ │ Deployment  │ │ Deployment  │ │ Deployment  │ │ Deployment  │<br/>│ ┌─────────┐ │ │ ┌─────────┐ │ │ ┌─────────┐ │ │ ┌─────────┐ │ │ ┌─────────┐ │<br/>│ │  Pod 1  │ │ │ │  Pod 1  │ │ │ │  Pod 1  │ │ │ │  Pod 1  │ │ │ │  Pod 1  │ │<br/>│ │argocd-  │ │ │ │ grafana │ │ │ │backstage│ │ │ │prometheus│ │ │ │alert-   │ │<br/>│ │ server  │ │ │ │         │ │ │ │         │ │ │ │          │ │ │ │ manager │ │<br/>│ └─────────┘ │ │ └─────────┘ │ │ └─────────┘ │ │ └─────────┘ │ │ └─────────┘ │<br/>│ ┌─────────┐ │ │ ┌─────────┐ │ │ ┌─────────┐ │ │ ┌─────────┐ │ │ ┌─────────┐ │<br/>│ │  Pod 2  │ │ │ │  Pod 2  │ │ │ │  Pod 2  │ │ │ │  Pod 2  │ │ │ │  Pod 2  │ │<br/>│ │argocd-  │ │ │ │ grafana │ │ │ │backstage│ │ │ │prometheus│ │ │ │alert-   │ │<br/>│ │ server  │ │ │ │         │ │ │ │         │ │ │ │          │ │ │ │ manager │ │<br/>│ └─────────┘ │ │ └─────────┘ │ │ └─────────┘ │ │ └─────────┘ │ │ └─────────┘ │<br/>└─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘]
-    
-    %% Storage & Security Layer
-    Storage[💾 STORAGE & SECURITY<br/>┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐<br/>│  Sealed     │ │  PostgreSQL │ │  Local     │ │  Cilium     │ │  RBAC       │<br/>│  Secrets    │ │  Database   │ │  Storage   │ │  Network    │ │  Policies   │<br/>│  Controller │ │  (Backstage)│ │  (PVCs)    │ │  Policies   │ │  & Access   │<br/>└─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘]
-    
-    %% Flow connections
-    Internet -->|HTTPS Requests| Cloudflare
-    Cloudflare -->|Cloudflare Tunnel<br/>via cloudflared| Cloudflared
-    Cloudflared -->|Ingress via Cloudflare Tunnel| MetalLB
-    MetalLB -->|Internal Routing| Services
-    Services -->|LoadBalancer Services| Deployments
-    Deployments -->|Service Discovery| Storage
-    
-    %% Subgraphs for logical grouping
-    subgraph "K3S KUBERNETES CLUSTER"
+    subgraph k3s["k3s Cluster"]
         Cloudflared
-        MetalLB
-        Services
-        Deployments
+        MetalLB[MetalLB]
+        Services[Kubernetes Services]
+        Apps[Kubernetes Pods]
     end
     
-    %% Styling
-    style Internet fill:#e3f2fd
-    style Cloudflare fill:#fff3e0
-    style Cloudflared fill:#f3e5f5
-    style MetalLB fill:#e8f5e8
-    style Services fill:#e1f5fe
-    style Deployments fill:#fce4ec
-    style Storage fill:#f1f8e9
+    Cloudflared --> MetalLB
+    MetalLB --> Services
+    Services --> Apps
+    
+    style User fill:#fff,color:#000,stroke:#333,stroke-width:2px
+    style Cloudflare fill:#ffaa22, color:#000
+    style k3s fill:#3c84ff,stroke:#333,stroke-width:2px
+    style Cloudflared fill:#fff, color:#606060, ,stroke:#333,stroke-width:1px
+    style MetalLB fill:#fff, color:#606060, ,stroke:#333,stroke-width:1px
+    style Services fill:#fff, color:#606060, ,stroke:#333,stroke-width:1px
+    style Apps fill:#fff, color:#606060, ,stroke:#333,stroke-width:1px
 ```
 
 ### Componentes Principales
