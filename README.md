@@ -157,7 +157,7 @@ helm install argocd-apps argo/argocd-apps \
 
 Estos 5 pasos estan pensados para reproducir el entorno de manera automatica con los archivos de configuracion actualizados en el directorio `apps/`.  
 
-Para una primera instalación, es necesario generar antes los secretos `[*]-sealedsecret.yaml` para cada servicio con **TUS** respectivas credenciales o información sensible.
+Para una primera instalación, es necesario generar antes los secretos `[*]-sealedsecret.yaml` para cada servicio con sus respectivas credenciales o información sensible que serán diferentes para cada usuario/cluster.
 
 ## 🔧 Configuración Automática
 
@@ -242,24 +242,13 @@ Para agregar una nueva aplicación al homelab:
          selfHeal: true
    ```
 
-3. **Commit y push** → ArgoCD la detecta automáticamente
+3. **Commit y push** → ArgoCD la detecta automáticamente mediante la app of apps `homelab-bootstrap`.
 
 ### Modificar Configuración Existente
 
 - **Apps**: Edita `values.yaml` en `apps/[nombre-app]/`
 - **ArgoCD**: Modifica archivos en `argocd/applications/` y `argocd/projects/`
 - **Documentación**: Actualiza archivos en `docs/`
-
-### Estructura de una App en ArgoCD
-
-Cada aplicación debe seguir esta estructura:
-
-```bash
-apps/mi-app/
-├── values.yaml                  # Configuración principal (Helm values)
-├── mi-app-sealedsecret.yaml    # Credenciales encriptadas (si aplica)
-└── README.md                   # Documentación específica (opcional)
-```
 
 ## 📚 Documentación Detallada
 
