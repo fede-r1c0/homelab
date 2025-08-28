@@ -5,7 +5,7 @@ metadata:
   namespace: argocd
   labels:
     project: applications
-    phase: "6"
+    phase: "4"
 spec:
   project: applications
   sources:
