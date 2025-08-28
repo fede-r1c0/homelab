@@ -1,13 +1,13 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: cloudflare-tunnel
+  name: cloudflared
   namespace: argocd
   labels:
     project: security
-    phase: "4"
+    phase: "5"
     managed-by: argocd
-    app.kubernetes.io/name: cloudflare-tunnel
+    app.kubernetes.io/name: cloudflared
     app.kubernetes.io/part-of: homelab
 spec:
   project: security
@@ -19,18 +19,18 @@ spec:
       targetRevision: 2.1.2
       helm:
         valueFiles:
-          - $values/apps/cloudflare-tunnel/values.yaml
+          - $values/apps/cloudflared/values.yaml
 
     - repoURL: https://github.com/fede-r1c0/homelab
       targetRevision: HEAD
       ref: values
-      path: apps/cloudflare-tunnel
+      path: apps/cloudflared
       directory:
-        include: "cloudflare-tunnel-sealedsecret.yaml"
+        include: "cloudflared-sealedsecret.yaml"
 
   destination:
     server: https://kubernetes.default.svc
-    namespace: cloudflare-tunnel
+    namespace: cloudflared
 
   # Sync policy configuration
   syncPolicy:
