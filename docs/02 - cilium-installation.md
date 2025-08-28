@@ -1,4 +1,6 @@
-## 🔧 Cilium k3s CNI intallation for Homelab Kubernetes
+# Cilium k3s CNI intallation for Homelab Kubernetes
+
+## 🔧 **Instalacion de Cilium**
 
 ### **1. Preparación para Cilium**
 
@@ -229,7 +231,3 @@ kubectl get all --all-namespaces -o yaml > ~/k8s-resources-backup.yaml
 - [Cilium Documentation](https://docs.cilium.io/)
 - [eBPF Documentation](https://ebpf.io/)
 - [Kubernetes Network Policies](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
-
----
-
-### El cluster está listo para el siguiente paso: instalación de ArgoCD 🚀

@@ -93,7 +93,3 @@ k3s --version
 - [k3s Documentation](https://docs.k3s.io/)
 - [k3s Cilium configuration](https://docs.cilium.io/en/stable/installation/k3s/)
 - [k3s MetalLB configuration](https://metallb.universe.tf/configuration/k3s/)
-
----
-
-### El cluster está listo para el siguiente paso: instalación de Clilium 🚀

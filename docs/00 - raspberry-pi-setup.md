@@ -1,8 +1,9 @@
-# 🍓 Raspberry Pi 5 Setup para Homelab Kubernetes
+# 🍓 Raspberry Pi 5 setup for Homelab Kubernetes
 
 ## 📋 **Descripción**
 
-Esta guía detalla la configuración completa de una Raspberry Pi 5 para funcionar como nodo único de Kubernetes en un entorno de homelab. El setup está optimizado para desarrollo, aprendizaje y experimentación con tecnologías cloud-native.
+Esta guía detalla la configuración completa de una Raspberry Pi 5 para funcionar como nodo único de Kubernetes en un entorno de homelab.  
+El setup está optimizado para desarrollo, aprendizaje y experimentación con tecnologías cloud-native.
 
 ## 🎯 **Objetivos del Setup**
 
@@ -11,27 +12,30 @@ Esta guía detalla la configuración completa de una Raspberry Pi 5 para funcion
 - **Base sólida** para experimentar con GitOps y observabilidad
 - **Portfolio profesional** demostrando habilidades enterprise-grade
 
-## 🛠️ **Hardware Requerido**
+## 🛠️ **Hardware**
 
-### **Raspberry Pi 5 (Recomendado)**
+### **Raspberry Pi 5**
 
-- **RAM**: 8GB (mínimo 4GB)
+- **RAM**: 8GB
 - **CPU**: ARM64 2.4GHz quad-core
-- **Almacenamiento**: MicroSD 32GB+ clase 10 (recomendado 64GB+)
-- **Red**: Gigabit Ethernet + WiFi 6
-- **Enfriamiento**: Case con ventilador activo
+- **Almacenamiento**: 256GB M.2 NVMe SSD
+- **Red**: Gigabit Ethernet
+- **Enfriamiento**: Active Cooling Kit
 
 ### **Accesorios Adicionales**
 
-- **Fuente de alimentación**: 5V/3A USB-C PD
-- **Case**: Con ventilador y disipador de calor
-- **MicroSD**: Clase 10, UHS-I, A1/A2 rating
+- **Fuente de alimentación**: Official 27W 5V/3A USB-C Power Supply
+- **Extensión de almacenamiento**: Pimoroni Base NVMe M.2
+- **Memoria SD**: SD Card de 32GB o superior para instalar el sistema operativo.
 - **Cable de red**: Cat6 o superior
-- **Teclado y mouse**: Para configuración inicial
+- **Periféricos**: Monitor, teclado y mouse para configuración inicial
+- **Extra cables**: Cable Micro HDMI a HDMI.
+
+Instalación de Pimoroni Base NVMe: [https://learn.pimoroni.com/article/getting-started-with-nvme-base/](https://learn.pimoroni.com/article/getting-started-with-nvme-base)
 
 ## 🚀 **Preparación del Sistema Base**
 
-### **1. Descarga de Ubuntu Server 25.04**
+### **1. Descarga de Raspberry Pi OS**
 
 ```bash
 # Descargar Ubuntu Server 25.04 para Raspberry Pi
@@ -131,7 +135,6 @@ sudo systemctl status ssh
 
 # Configurar firewall básico
 sudo ufw allow ssh
-sudo ufw allow 6443/tcp  # Kubernetes API
 sudo ufw enable
 ```
 
@@ -257,31 +260,7 @@ vi ~/.zshrc
 
 ## 🔧 **Optimizaciones del Sistema**
 
-### **1. Configuración de Swap**
-
-```bash
-# Crear archivo de swap
-sudo fallocate -l 2G /swapfile
-sudo chmod 600 /swapfile
-sudo mkswap /swapfile
-sudo swapon /swapfile
-
-# Hacer swap permanente
-echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
-```
-
-### **2. Optimización de MicroSD**
-
-```bash
-# Configurar journaling en memoria
-echo 'Storage=persistent' | sudo tee -a /etc/systemd/journald.conf
-
-# Reducir escrituras en disco
-echo 'tmpfs /tmp tmpfs defaults,noatime,nosuid,size=1G 0 0' | sudo tee -a /etc/fstab
-echo 'tmpfs /var/tmp tmpfs defaults,noatime,nosuid,size=1G 0 0' | sudo tee -a /etc/fstab
-```
-
-### **3. Configuración de Cgroups**
+### **1. Configuración de Cgroups**
 
 ```bash
 # Habilitar cgroups para Kubernetes
@@ -290,6 +269,26 @@ echo 'cgroup_memory=1 cgroup_enable=memory' | sudo tee -a /boot/firmware/cmdline
 # Verificar configuración
 cat /boot/firmware/cmdline.txt
 ```
+
+### **2. Optimización de PCIe a PCIe 3**
+
+El puerto PCIe de la Raspberry Pi 5 utiliza la especificación PCIe 1.0 por defecto. Sin embargo, puede funcionar a mayor velocidad, aunque esto no está oficialmente soportado y es algo experimental. Esta opción solo funciona en Raspberry Pi OS.
+
+Para habilitar el modo 'PCIe 3', abre una terminal y ejecuta:
+
+```bash
+sudo vi /boot/firmware/config.txt
+```
+
+Agrega la siguiente línea en la sección [all] al final del archivo:
+
+```text
+dtparam=pciex1_gen=3
+```
+
+Referencia: [https://learn.pimoroni.com/article/getting-started-with-nvme-base#optional-and-unsupported-speed-increase](https://learn.pimoroni.com/article/getting-started-with-nvme-base#optional-and-unsupported-speed-increase)
+
+Guarda el archivo y reiniciar el sistema operativo..
 
 ## 📊 **Monitoreo del Sistema**
 
@@ -341,19 +340,6 @@ git --version
 docker --version
 go version
 node --version
-```
-
-### **2. Test de Rendimiento**
-
-```bash
-# Test de CPU
-sysbench cpu --cpu-max-prime=20000 run
-
-# Test de memoria
-sysbench memory --memory-block-size=1K --memory-total-size=100G run
-
-# Test de disco
-sudo hdparm -t /dev/mmcblk0
 ```
 
 ## 🚨 **Troubleshooting Común**
@@ -453,7 +439,3 @@ Para problemas específicos:
 2. Verificar conectividad de red
 3. Consultar documentación oficial
 4. Crear issue en el repositorio
-
----
-
-### Tu Raspberry Pi está listo para el siguiente paso: instalación de k3s! 🚀
