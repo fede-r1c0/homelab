@@ -40,8 +40,13 @@ sudo apt install -y linux-modules-extra-raspi
 
 ```bash
 # Instalar K3S sin Traefik (usaremos Cilium) y sin Klipper (usaremos MetalLB)
-curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--flannel-backend=none --disable-network-policy --disable servicelb --disable=traefik" sh -
+curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--flannel-backend=none   --disable-kube-proxy --disable servicelb --disable-network-policy --disable=traefik" sh -
+```
 
+⚠️ **Importante:**
+Instalando k3s con este comando deshabilitamos la interfaz de red de contenedores Flannel (CNI) predeterminada, así como el kube-proxy. Deshabilitaremos el ServiceLB controller por default de k3s y el NetworkPolicy controller integrado. Tampoco es necesario conservar el Ingress controller por default (Traefik).
+
+```bash
 # Verificar instalación
 sudo systemctl status k3s
 
@@ -54,8 +59,6 @@ sudo chown $USER:$USER ~/.kube/config
 kubectl get nodes
 kubectl cluster-info
 ```
-
-⚠️ Importante: Deshabilitaremos Network PolicyTraefik y Klipper para usar Cilium y MetalLB.
 
 ### **3. Configuración de K3S**
 
