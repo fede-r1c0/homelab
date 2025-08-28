@@ -11,7 +11,7 @@ backstage:
   image:
     registry: "ghcr.io"
     repository: "fede-r1c0/backstage"
-    tag: "latest"
+    tag: "main-9ef6a21"
     pullPolicy: "IfNotPresent"
 
   # -- Number of deployment replicas
