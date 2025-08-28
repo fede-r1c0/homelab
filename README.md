@@ -183,6 +183,84 @@ Una vez instalado ArgoCD, la aplicación `homelab-bootstrap` configurará autom�
 
 3. **Validar los values.yaml** de cada aplicación en `apps/`
 
+## 📁 Estructura del Repo
+
+```bash
+homelab/
+├── .github/                     # Workflows de GitHub Actions
+│   └── workflows/                 # Validación automática de manifiestos
+├── apps/                        # Configuraciones de aplicaciones
+│   ├── argo/                      # Instalación de ArgoCD y argocd-apps Helm Chart
+│   │   ├── argocd/                  # Values para argocd Helm Chart
+│   │   └── argocd-apps/             # Values para argocd-apps Helm Chart
+│   ├── backstage/                 # Configuración de Backstage
+│   ├── cloudflared/               # Configuración de Cloudflare Tunnel
+│   ├── metallb/                   # Configuración de MetalLB
+│   ├── prometheus-stack/          # Configuración de Prometheus Stack
+│   └── sealed-secrets/            # Configuración de Sealed Secrets
+├── argocd/                      # Manifiestos de configuración de ArgoCD
+│   ├── applications/              # Aplicaciones individuales
+│   └── projects/                  # Definición de proyectos con RBAC
+├── docs/                        # Documentación técnica detallada
+└── README.md                    # Este archivo
+```
+
+## 🔧 Personalización
+
+### Agregar nuevas Apps a ArgoCD
+
+Para agregar una nueva aplicación al homelab:
+
+1. **Crear directorio en `apps/`** con tu configuración:
+
+   ```bash
+   mkdir apps/mi-nueva-app
+   # Crear values.yaml con la configuración
+   # Crear [app-name]-sealedsecret.yaml si necesita credenciales
+   ```
+
+2. **Crear aplicación en `argocd/applications/`**:
+
+   ```yaml
+   apiVersion: argoproj.io/v1alpha1
+   kind: Application
+   metadata:
+     name: mi-nueva-app
+     namespace: argocd
+   spec:
+     project: applications
+     source:
+       repoURL: https://github.com/fede-r1c0/homelab
+       targetRevision: HEAD
+       path: apps/mi-nueva-app # Path al directorio de la nueva app
+     destination:
+       server: https://kubernetes.default.svc
+       namespace: mi-nueva-app
+     syncPolicy:
+       automated:
+         prune: true
+         selfHeal: true
+   ```
+
+3. **Commit y push** → ArgoCD la detecta automáticamente
+
+### Modificar Configuración Existente
+
+- **Apps**: Edita `values.yaml` en `apps/[nombre-app]/`
+- **ArgoCD**: Modifica archivos en `argocd/applications/` y `argocd/projects/`
+- **Documentación**: Actualiza archivos en `docs/`
+
+### Estructura de una App en ArgoCD
+
+Cada aplicación debe seguir esta estructura:
+
+```bash
+apps/mi-app/
+├── values.yaml                  # Configuración principal (Helm values)
+├── mi-app-sealedsecret.yaml    # Credenciales encriptadas (si aplica)
+└── README.md                   # Documentación específica (opcional)
+```
+
 ## 📚 Documentación Detallada
 
 Para configuraciones específicas y troubleshooting, consulta la documentación completa:
