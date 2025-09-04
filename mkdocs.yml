@@ -7,4 +7,4 @@ edit_uri: edit/main/docs
 plugins:
   - techdocs-core
 nav:
-  - Home: README.md
+  - Home: index.md
