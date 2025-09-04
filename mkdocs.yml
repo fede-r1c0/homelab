@@ -1,0 +1,10 @@
+site_name: Homelab
+site_description: Homelab is a personal project to experiment with Kubernetes and GitOps.
+site_author: fede-r1c0
+site_url: https://feder1c0.tech
+repo_url: https://github.com/fede-r1c0/homelab
+edit_uri: edit/main/docs
+plugins:
+  - techdocs-core
+nav:
+  - Home: README.md
