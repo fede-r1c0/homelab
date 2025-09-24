@@ -33,10 +33,10 @@ backstage:
   # -- Resource requests/limits
   resources:
     limits:
-      memory: 256Mi
+      memory: 512Mi
       cpu: 200m
     requests:
-      memory: 64Mi
+      memory: 128Mi
       cpu: 100m
 
   livenessProbe:
